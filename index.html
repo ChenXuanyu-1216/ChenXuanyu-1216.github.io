@@ -8,7 +8,10 @@
 <meta property="og:type" content="website"><meta property="og:title" content="LA · 软件工程学生｜步态冻结预测研究与 AI 辅助开发项目"><meta property="og:locale" content="zh_CN"><meta name="twitter:card" content="summary"><meta property="og:description" content="LA，软件工程专业学生。跟随教授研究用脚踝传感器步态数据提前预测帕金森患者的冻结步态（Pre-FoG），并独立开发课堂 PPT 大纲生成微信小程序和代码阅读工具 Evidence-Map。">
 <meta name="theme-color" content="#F6F0DC" media="(prefers-color-scheme:light)"><meta name="theme-color" content="#1A1814" media="(prefers-color-scheme:dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F2B632'/%3E%3Ctext x='32' y='43' font-family='Arial' font-weight='800' font-size='30' text-anchor='middle' fill='%23241A00'%3ELA%3C/text%3E%3C/svg%3E">
-<script>document.documentElement.classList.add('js')</script>
+<script>(function(r){r.classList.add('js');
+// Greeting curtain: once per tab, never with reduced motion or a deep link. Fails open after 5s.
+try{if(!matchMedia('(prefers-reduced-motion:reduce)').matches&&!location.hash&&!sessionStorage.getItem('la-intro')){r.classList.add('intro');setTimeout(function(){r.classList.remove('intro')},5000)}sessionStorage.setItem('la-intro','1')}catch(e){}
+})(document.documentElement)</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet"></noscript>
@@ -180,7 +183,7 @@ nav a[aria-current]:not(.cta){background:var(--paper)}
 @media (min-width:821px){.stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px)}}
 .contact .copy{vertical-align:middle;margin-left:14px;font:700 .95rem var(--display);border:1.5px solid currentColor;border-radius:999px;background:none;color:inherit;padding:6px 16px;cursor:pointer;transition:background-color .2s,color .2s,border-color .2s}
 .contact .copy:hover{background:var(--mark);border-color:var(--mark);color:var(--mark-ink)}
-.hero-preview{padding-top:68px;padding-bottom:96px}
+.hero-preview{padding:68px 24px 96px}
 .hero-greeting{font:500 1.45rem/1.5 var(--body);margin-bottom:26px;color:var(--ink)}
 .hero-preview h1{font:700 clamp(2.05rem,4.6vw,4rem)/1.25 var(--body);letter-spacing:-.035em;max-width:none}
 .hero-preview h1 .w{display:block;width:max-content;max-width:100%}
@@ -201,9 +204,50 @@ nav a[aria-current]:not(.cta){background:var(--paper)}
 @media(max-width:600px){.clock{padding-left:10px;gap:0}.clock-city{display:none}.brand{gap:10px}}
 .clock-emoji{font:400 1rem/1 var(--display);margin-right:-2px}
 @media(max-width:600px){.clock-emoji{margin-right:6px}}
+.curtain{display:none;position:fixed;inset:0;z-index:1000;overflow:hidden;cursor:pointer}
+html.intro .curtain,.curtain.on{display:block}
+html.intro{overflow:hidden}
+html.intro header .wrap,html.intro .hero p,html.intro .btns,html.intro .hero h1 .w>span,html.intro .note,html.intro .hero-wave{animation-play-state:paused}
+.curtain-screen{position:absolute;inset:0;background:var(--deep);will-change:transform}
+.curtain-curve{position:absolute;top:calc(100% - 1px);left:-25%;width:150%;height:12vh;background:var(--deep);border-radius:0 0 50% 50%/0 0 100% 100%}
+.curtain-label{position:absolute;top:calc(50% - 4vh);left:50%;transform:translate(-50%,-50%);margin:0;display:flex;align-items:center;gap:.45em;white-space:nowrap;color:var(--deep-ink);font:500 clamp(2rem,5vw,3.8rem)/1.2 var(--display);letter-spacing:-.02em;opacity:0}
+.curtain-label i{flex:none;width:.2em;height:.2em;border-radius:50%;background:var(--mark)}
+@media(max-width:600px){.curtain-curve{height:6vh}}
 </style>
 </head>
 <body>
+<div class="curtain" aria-hidden="true"><div class="curtain-screen"><p class="curtain-label"><i></i><span id="curtainWord">Hello</span></p><div class="curtain-curve"></div></div></div>
+<script>
+(function(){
+var r=document.documentElement,cur=document.querySelector('.curtain');
+if(!r.classList.contains('intro'))return;
+if(!cur.animate){r.classList.remove('intro');return}
+var scr=cur.firstChild,lab=scr.firstChild,curve=scr.lastChild,word=document.getElementById('curtainWord'),done=0,timer;
+var words=['Hello','Bonjour','Hola','Ciao','こんにちは','안녕하세요','你好，我是 LA'];
+cur.classList.add('on');
+function lift(){
+if(done)return;done=1;clearTimeout(timer);
+// Hero animations start the moment the curtain begins to rise.
+r.classList.remove('intro');cur.style.pointerEvents='none';
+lab.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
+curve.animate([{height:curve.offsetHeight+'px'},{height:'0px'}],{duration:800,delay:120,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'});
+scr.animate([{transform:'translateY(0)'},{transform:'translateY(-100%)'}],{duration:800,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'}).onfinish=function(){cur.remove()};
+setTimeout(function(){cur.remove()},1500);
+}
+function step(i){
+if(done)return;word.textContent=words[i];
+if(i<words.length-1)timer=setTimeout(function(){step(i+1)},i?130:380);
+else timer=setTimeout(lift,560);
+}
+// Click or any key skips straight to the lift.
+cur.addEventListener('click',lift);addEventListener('keydown',lift,{once:true});
+Promise.race([document.fonts?document.fonts.ready:0,new Promise(function(f){setTimeout(f,300)})]).then(function(){
+if(done)return;
+lab.animate([{opacity:0,transform:'translate(-50%,calc(-50% + 20px))'},{opacity:1,transform:'translate(-50%,-50%)'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});
+step(0);
+});
+})();
+</script>
 <header>
   <div class="wrap">
     <div class="brand"><a class="logo" href="#top">LA</a><span class="clock" title="温州当地时间（UTC+8）"><span class="clock-emoji" id="clockEmoji" aria-hidden="true">🕐</span><span class="clock-city">温州</span><time id="clockTime">--:--:--</time></span></div>
