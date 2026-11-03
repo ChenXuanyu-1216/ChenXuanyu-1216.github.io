@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#F6F0DC" media="(prefers-color-scheme:light)"><meta name="theme-color" content="#1A1814" media="(prefers-color-scheme:dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F2B632'/%3E%3Ctext x='32' y='43' font-family='Arial' font-weight='800' font-size='30' text-anchor='middle' fill='%23241A00'%3ELA%3C/text%3E%3C/svg%3E">
 <script>(function(r){r.classList.add('js');
-// Greeting curtain: once per tab, never with reduced motion or a deep link. Fails open after 5s.
-try{if(!matchMedia('(prefers-reduced-motion:reduce)').matches&&!location.hash&&!sessionStorage.getItem('la-intro')){r.classList.add('intro');setTimeout(function(){r.classList.remove('intro')},5000)}sessionStorage.setItem('la-intro','1')}catch(e){}
+// Greeting curtain: replay on every page load, including refreshes and deep links. Fails open after 5s.
+try{if(!matchMedia('(prefers-reduced-motion:reduce)').matches){r.classList.add('intro');setTimeout(function(){r.classList.remove('intro')},5000)}}catch(e){}
 })(document.documentElement)</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
