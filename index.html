@@ -237,6 +237,7 @@ header nav{order:2;flex:0 0 100%;margin-left:0}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 112px)}
 }
 </style>
+<style id="about-character">.about-portrait{display:block;width:280px;max-width:88%;height:auto;margin:32px 0 0;object-fit:contain}@media(max-width:820px){.about-portrait{width:180px;margin-top:24px}}</style>
 </head>
 <body>
 <div class="curtain" aria-hidden="true"><div class="curtain-screen"><p class="curtain-label"><i></i><span id="curtainWord">Hello</span></p><p class="curtain-hint" id="curtainHint">点击进入 · 开启声音</p><div class="curtain-curve"></div></div></div>
@@ -356,7 +357,7 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
   </div>
 
   <section id="about"><div class="wrap about">
-    <div><h2>关于我</h2></div>
+    <div><h2>关于我</h2><img class="about-portrait" src="/assets/la-working-v1.webp" width="1086" height="1448" alt="LA 专注看着笔记本电脑、敲击键盘的手绘形象" loading="lazy" decoding="async"></div>
     <div>
       <p>我是 LA，一名软件工程专业的学生。</p>
       <p>开始做这些项目，是因为总觉得日子就这么过去了，想认真做点事情。我跟随教授做 Pre-FoG 研究，也在做自己的个人项目。</p>
