@@ -208,10 +208,62 @@ html.intro header .wrap,html.intro .hero p,html.intro .btns,html.intro .hero h1 
 .curtain-label{position:absolute;top:calc(50% - 4vh);left:50%;transform:translate(-50%,-50%);margin:0;display:flex;align-items:center;gap:.45em;white-space:nowrap;color:var(--deep-ink);font:500 clamp(2rem,5vw,3.8rem)/1.2 var(--display);letter-spacing:-.02em;opacity:0}
 .curtain-label i{flex:none;width:.2em;height:.2em;border-radius:50%;background:var(--mark)}
 @media(max-width:600px){.curtain-curve{height:6vh}}
+.sound-btn{display:inline-flex;align-items:center;justify-content:center}
+.sound-btn svg{width:1.2em;height:1.2em;margin:.05em 0;display:block}
+.sound-btn[aria-pressed="false"] .s-on,.sound-btn[aria-pressed="true"] .s-off{display:none}
+.sound-btn[aria-pressed="false"]{color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="curtain" aria-hidden="true"><div class="curtain-screen"><p class="curtain-label"><i></i><span id="curtainWord">你好</span></p><div class="curtain-curve"></div></div></div>
+<script>
+// Intro sounds: synthesized with Web Audio, so no files. Browsers block audio until the visitor
+// has interacted with the site, so this stays silent unless audio is already allowed or a click skips the intro.
+var introSound=(function(){
+var on=true,ctx,master;
+try{on=localStorage.getItem('la-sound')!=='off'}catch(e){}
+function ready(gesture){
+if(!on)return null;
+var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+if(!ctx){
+if(!gesture&&navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy('audiocontext')==='disallowed')return null;
+try{ctx=new AC();master=ctx.createGain();master.gain.value=.5;master.connect(ctx.destination)}catch(e){return null}
+}
+if(ctx.state!=='running'){if(!gesture)return null;ctx.resume()}
+return ctx;
+}
+function tone(c,f,t,d,v){
+var o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;
+g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05);
+}
+// Rising pentatonic ticks, then a soft major chime on the final greeting.
+var notes=[523.25,587.33,659.25,783.99,880,1046.5];
+function tick(i){var c=ready();if(c)tone(c,notes[i%notes.length],c.currentTime,.09,.12)}
+function chime(){var c=ready();if(!c)return;var t=c.currentTime;tone(c,1046.5,t,1.2,.1);tone(c,1318.5,t+.04,1.1,.07);tone(c,1568,t+.08,1,.05)}
+function whoosh(gesture){
+var c=ready(gesture);if(!c)return;
+var t=c.currentTime,len=Math.floor(c.sampleRate*.9),buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);
+for(var i=0;i<len;i++)d[i]=Math.random()*2-1;
+var n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+n.buffer=buf;f.type='bandpass';f.Q.value=.8;
+f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(2000,t+.8);
+g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.28);g.gain.exponentialRampToValueAtTime(.0001,t+.9);
+n.connect(f);f.connect(g);g.connect(master);n.start(t);n.stop(t+.9);
+}
+document.addEventListener('DOMContentLoaded',function(){
+var b=document.getElementById('soundBtn');if(!b)return;
+b.setAttribute('aria-pressed',on);
+b.onclick=function(){
+on=!on;b.setAttribute('aria-pressed',on);
+try{localStorage.setItem('la-sound',on?'on':'off')}catch(e){}
+if(master)master.gain.value=on?.5:0;
+if(on){var c=ready(true);if(c)tone(c,880,c.currentTime,.09,.12)}
+};
+});
+return{tick:tick,chime:chime,whoosh:whoosh};
+})();
+</script>
 <script>
 (function(){
 var r=document.documentElement,cur=document.querySelector('.curtain');
@@ -220,10 +272,12 @@ if(!cur.animate){r.classList.remove('intro');return}
 var scr=cur.firstChild,lab=scr.firstChild,curve=scr.lastChild,word=document.getElementById('curtainWord'),done=0,timer;
 var words=['你好','Bonjour','Hola','Ciao','こんにちは','안녕하세요',"Hi, I'm LA"];
 cur.classList.add('on');
-function lift(){
+function lift(e){
 if(done)return;done=1;clearTimeout(timer);
 // Hero animations start the moment the curtain begins to rise.
 r.classList.remove('intro');cur.style.pointerEvents='none';
+// A click or key press skipping the intro lets the browser unlock audio.
+introSound.whoosh(!!(e&&e.isTrusted));
 lab.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
 curve.animate([{height:curve.offsetHeight+'px'},{height:'0px'}],{duration:800,delay:120,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'});
 scr.animate([{transform:'translateY(0)'},{transform:'translateY(-100%)'}],{duration:800,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'}).onfinish=function(){cur.remove()};
@@ -231,6 +285,7 @@ setTimeout(function(){cur.remove()},1500);
 }
 function step(i){
 if(done)return;word.textContent=words[i];
+if(i<words.length-1)introSound.tick(i);else introSound.chime();
 if(i<words.length-1)timer=setTimeout(function(){step(i+1)},i?130:380);
 else timer=setTimeout(lift,560);
 }
@@ -247,7 +302,7 @@ step(0);
   <div class="wrap">
     <a class="logo" href="#top">LA</a>
     <nav aria-label="Main navigation">
-      <a href="#about">About me</a><a href="#work">Projects</a><a href="#room">My desk</a><button class="term-btn" id="termBtn" type="button" aria-haspopup="dialog" aria-expanded="false">&gt;_ Terminal</button><a class="cta" href="#contact">Say hello</a>
+      <a href="#about">About me</a><a href="#work">Projects</a><a href="#room">My desk</a><button class="term-btn" id="termBtn" type="button" aria-haspopup="dialog" aria-expanded="false">&gt;_ Terminal</button><button class="term-btn sound-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Intro sound" title="Intro sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="s-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="s-off" d="m16 9 6 6m0-6-6 6"/></svg></button><a class="cta" href="#contact">Say hello</a>
     </nav>
   </div>
 </header>
