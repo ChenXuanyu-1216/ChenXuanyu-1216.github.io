@@ -85,6 +85,17 @@ body{margin:0}a{color:inherit}button{font:700 15px var(--display);color:inherit;
   if(options.sit!==undefined)hipY=mix(435,options.seatY||470,seatAmount);
   if(!lying&&recline)hipY=mix(435,options.reclineY||452,recline);
   if(options.bedMotion)hipY=options.bedHipY;
+  // Resting stance needs the full 44+46px hip-to-ankle distance. Previously
+  // the hips were 5px too low, forcing a permanent knee bend in idle poses.
+  // Blend out of seats without altering the established walk/run/turn rig.
+  const standingBlend=!lying&&!options.bedMotion&&!walking&&!running&&!moving&&!options.turning?(1-seatAmount)*(1-recline):0;
+  hipY-=5*standingBlend;
+  if(standingBlend&&options.feetWorld){
+   // While rising, fixed planted feet can be offset from the pelvis. Do not
+   // lift beyond the available leg reach before weight transfers to walking.
+   const required=options.feetWorld.map((foot,i)=>{const dx=foot-x-mix(i?10:-10,i?7:-7,standingBlend);return 520-Math.sqrt(Math.max(0,90*90-dx*dx))+.001});
+   hipY=Math.max(hipY,...required);
+  }
   const bodyAngle=-Math.PI/2*recline+(walking?.025*walkWeight:running?.12*walkWeight:0)+(options.seatLean||0),hip=[x,hipY],shoulder=add(hip,rotate([0,-61],bodyAngle));
   const headAngle=recline?-1.4*recline:0,normalHead=add(hip,[4,-103]),neck=add(hip,rotate([10,-63],bodyAngle)),bedHead=add(neck,rotate([-9,-35],headAngle));
   const head=action==='sleep'||options.bedMotion?add(shoulder,rotate([4,-42],headAngle)):recline?[mix(normalHead[0],bedHead[0],recline),mix(normalHead[1],bedHead[1],recline)]:normalHead;
@@ -104,7 +115,7 @@ body{margin:0}a{color:inherit}button{font:700 15px var(--display);color:inherit;
   result.upperTurn=action==='reading'?smooth(bookTime/.7)*(1-bookBack):0;
   if(action==='reading'){head[0]-=9*result.upperTurn;if(bookTime<3.2)result.blink=false;}
   for(let side=0;side<2;side++){
-   const far=side===0,flat=options.bedLegFlat||0,legRoot=options.bedMotion?[x+mix(far?-10:10,-3,flat),(options.bedLegBaseY??hipY)+20*flat-(far?6*flat:0)]:lying?[x-3,hipY-(far?6:0)]:[x+((walking||running)?(far?-3:3):(far?-10:10)),hipY];
+   const far=side===0,flat=options.bedLegFlat||0,legRoot=options.bedMotion?[x+mix(far?-10:10,-3,flat),(options.bedLegBaseY??hipY)+20*flat-(far?6*flat:0)]:lying?[x-3,hipY-(far?6:0)]:[x+((walking||running)?(far?-3:3):mix(far?-10:10,far?-7:7,standingBlend)),hipY];
    let ankle,footAngle=0,contact=true;
    if(options.bedMotion)ankle=[x+mix(far?27:42,87,flat),mix(520,454,flat)];
    else if(lying)ankle=action==='bench'?[x+43+(far?0:12),520]:[legRoot[0]+89,legRoot[1]+4];
