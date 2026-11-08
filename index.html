@@ -6,7 +6,7 @@
 <title>LA · 软件工程学生｜步态冻结预测研究与 AI 辅助开发项目</title>
 <meta name="description" content="LA，软件工程专业学生。跟随教授研究用脚踝传感器步态数据提前预测帕金森患者的冻结步态（Pre-FoG），并独立开发课堂 PPT 大纲生成微信小程序和代码阅读工具 Evidence-Map。">
 <meta property="og:type" content="website"><meta property="og:title" content="LA · 软件工程学生｜步态冻结预测研究与 AI 辅助开发项目"><meta property="og:locale" content="zh_CN"><meta name="twitter:card" content="summary_large_image"><meta property="og:description" content="LA，软件工程专业学生。跟随教授研究用脚踝传感器步态数据提前预测帕金森患者的冻结步态（Pre-FoG），并独立开发课堂 PPT 大纲生成微信小程序和代码阅读工具 Evidence-Map。">
-<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme:light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme:dark)">
+<meta name="color-scheme" content="light"><meta name="theme-color" content="#FFFFFF">
 <meta property="og:url" content="https://lachenxuanyu.com/"><meta property="og:image" content="https://lachenxuanyu.com/assets/og-zh.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="LA：学着做研究，也做自己的项目。">
 <link rel="canonical" href="https://lachenxuanyu.com/"><link rel="alternate" hreflang="zh-CN" href="https://lachenxuanyu.com/"><link rel="alternate" hreflang="en" href="https://lachenxuanyu.com/en/"><link rel="alternate" hreflang="x-default" href="https://lachenxuanyu.com/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'1'%20x2%3D'1'%20y2%3D'0'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%23F2B632'%2F%3E%3Cstop%20offset%3D'.55'%20stop-color%3D'%23F0566A'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%238B5CF6'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'31'%20fill%3D'url(%23g)'%2F%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'26'%20fill%3D'%23fff'%2F%3E%3Ctext%20x%3D'32'%20y%3D'41'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-weight%3D'800'%20font-size%3D'22'%20text-anchor%3D'middle'%20fill%3D'%23262626'%3ELA%3C%2Ftext%3E%3C%2Fsvg%3E">
@@ -251,8 +251,10 @@ html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 112px)}
 <style id="clean-white-theme">
 /* Clean White theme: same layout, restyled as a minimal white feed. */
 :root{--bg:#FFFFFF;--paper:#FAFAFA;--ink:#262626;--muted:#737373;--line:#DBDBDB;--deep:#262626;--deep-ink:#FFFFFF;--ring:linear-gradient(45deg,#F2B632,#F0566A 55%,#8B5CF6);--liked:#F0566A;--display:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;--body:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000000;--paper:#121212;--ink:#F5F5F5;--muted:#A8A8A8;--line:#363636;--deep:#F5F5F5;--deep-ink:#000000}}
-:root[data-theme="dark"]{--bg:#000000;--paper:#121212;--ink:#F5F5F5;--muted:#A8A8A8;--line:#363636;--deep:#F5F5F5;--deep-ink:#000000}
+/* One look for everyone: dark-mode systems get the same light design. */
+:root{color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#FFFFFF;--paper:#FAFAFA;--ink:#262626;--muted:#737373;--line:#DBDBDB;--deep:#262626;--deep-ink:#FFFFFF}}
+:root[data-theme="dark"]{--bg:#FFFFFF;--paper:#FAFAFA;--ink:#262626;--muted:#737373;--line:#DBDBDB;--deep:#262626;--deep-ink:#FFFFFF}
 body{font-size:1.0625rem;line-height:1.7}
 header{padding-top:3px;background:linear-gradient(90deg,#F2B632,#F0566A 55%,#8B5CF6) top/100% 3px no-repeat,var(--bg);border-bottom:1px solid var(--line)}
 header.scrolled{box-shadow:none}
