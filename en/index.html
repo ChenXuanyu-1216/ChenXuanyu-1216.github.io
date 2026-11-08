@@ -284,6 +284,29 @@ nav a.cta{border-radius:8px}
 .site-motion-characters{opacity:.45}
 .contact h2{word-break:keep-all;overflow-wrap:anywhere}
 .contact ul a{border-radius:8px}
+/* Tappable hearts on the hero post cards */
+.desk .note::after{background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2058%2024%27%3E%3Cpath%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27%20transform%3D%27translate(34%200)%27%20d%3D%27M21%2011.5a8.5%208.5%200%200%201-12.4%207.6L3%2021l1.9-5.6A8.5%208.5%200%201%201%2021%2011.5z%27%2F%3E%3C%2Fsvg%3E") left center/auto 20px no-repeat,url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27%20d%3D%27M6%204h12v16l-6-4-6%204z%27%2F%3E%3C%2Fsvg%3E") right center/20px 20px no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2058%2024%27%3E%3Cpath%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27%20transform%3D%27translate(34%200)%27%20d%3D%27M21%2011.5a8.5%208.5%200%200%201-12.4%207.6L3%2021l1.9-5.6A8.5%208.5%200%201%201%2021%2011.5z%27%2F%3E%3C%2Fsvg%3E") left center/auto 20px no-repeat,url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27%20d%3D%27M6%204h12v16l-6-4-6%204z%27%2F%3E%3C%2Fsvg%3E") right center/20px 20px no-repeat}
+.like{position:absolute;z-index:1;left:4px;bottom:2px;width:40px;height:40px;display:grid;place-items:center;padding:0;border:0;border-radius:10px;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.like svg{width:20px;height:20px;overflow:visible}
+.like path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;transition:fill .15s,stroke .15s}
+.like[aria-pressed="true"] path{fill:var(--liked);stroke:var(--liked)}
+.like:focus-visible{outline:2px solid currentColor;outline-offset:-4px}
+.like.pop svg{animation:like-pop .45s cubic-bezier(.2,.8,.3,1.3)}
+.like-dot{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;pointer-events:none;animation:like-burst .55s ease-out forwards}
+.big-heart{position:absolute;left:50%;top:50%;width:72px;height:72px;fill:var(--liked);pointer-events:none;animation:like-big .8s ease-out forwards}
+@keyframes like-pop{0%{transform:scale(.3)}55%{transform:scale(1.28)}100%{transform:scale(1)}}
+@keyframes like-burst{0%{opacity:1;transform:rotate(var(--a)) translateY(-6px)}100%{opacity:0;transform:rotate(var(--a)) translateY(-22px) scale(.3)}}
+@keyframes like-big{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}18%{opacity:.95;transform:translate(-50%,-50%) scale(1.15)}32%{transform:translate(-50%,-50%) scale(1)}75%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+/* LIVE badge on the Pixel World entry */
+.pixel-door{position:relative}
+.live-badge{position:absolute;top:14px;left:14px;max-width:calc(100% - 28px);box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:999px;background:rgba(20,20,20,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#FFFFFF;font:500 .8125rem/1 var(--body);pointer-events:none}
+.live-badge[hidden]{display:none}
+.live-badge b{flex:none;display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#D4204F;font-size:.6875rem;font-weight:700;letter-spacing:.08em;animation:live-pulse 2s ease-out infinite}
+.live-badge b::before{content:"";width:6px;height:6px;border-radius:50%;background:#FFFFFF;animation:live-dot 1.4s ease-in-out infinite}
+.live-badge span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes live-pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,32,79,.55)}60%{box-shadow:0 0 0 6px rgba(212,32,79,0)}}
+@keyframes live-dot{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.like.pop svg,.live-badge b,.live-badge b::before{animation:none}}
 </style>
 </head>
 <body>
@@ -398,9 +421,9 @@ Building my own projects.</h1>
       <div class="btns"><a class="btn fill" href="#work">See my projects</a><a class="btn" href="#contact">Get in touch</a></div>
     </div>
     <div class="desk" aria-hidden="true">
-      <div class="note n1"><b>Working on</b>A WeChat mini program that turns photos of lecture slides into study outlines.</div>
-      <div class="note n2"><b>Tools I use</b>Mostly Codex, followed by Claude.</div>
-      <div class="note n3"><b>Research</b>Pre-FoG: investigating whether gait data can give an early warning of freezing.</div>
+      <div class="note n1"><b>Working on</b>A WeChat mini program that turns photos of lecture slides into study outlines.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+      <div class="note n2"><b>Tools I use</b>Mostly Codex, followed by Claude.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+      <div class="note n3"><b>Research</b>Pre-FoG: investigating whether gait data can give an early warning of freezing.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
     </div>
   </div>
 
@@ -432,7 +455,7 @@ Building my own projects.</h1>
 
   <section id="pixel-life"><div class="wrap pixel-entry">
     <div><h2>My pixel life</h2><p>A little window into my day, following the weekday and weekend schedule I have chosen. Drop by to see me working, reading, resting, or training.</p><p class="pixel-rooms">Study · Bedroom · Gym</p><a class="btn fill" href="/digital-me/en/index.html">Step into my little world <span aria-hidden="true">↗</span></a></div>
-    <a class="pixel-door" href="/digital-me/en/index.html" aria-label="Step into my little world"><picture><source media="(prefers-reduced-motion: reduce)" srcset="/assets/pixel-life-still-v8.png"><img src="/assets/pixel-life-loop-v8.gif" width="272" height="250" loading="lazy" alt="Pixel LA doing a bench press on a purple bench. Visit my pixel world to see what I am up to."></picture></a>
+    <a class="pixel-door" href="/digital-me/en/index.html" aria-label="Step into my little world"><picture><source media="(prefers-reduced-motion: reduce)" srcset="/assets/pixel-life-still-v8.png"><img src="/assets/pixel-life-loop-v8.gif" width="272" height="250" loading="lazy" alt="Pixel LA doing a bench press on a purple bench. Visit my pixel world to see what I am up to."></picture><span class="live-badge" hidden><b>LIVE</b><span></span></span></a>
   </div></section>
 
   <section id="room"><div class="wrap">
@@ -652,5 +675,89 @@ header .logo{display:inline-flex;align-items:center;gap:8px}
 })();
 </script>
 
+<script>window.LifeTimetable=(()=>{
+ 'use strict';
+ const time=(h,m=0)=>h*3600+m*60;
+ const rooms={coding:'study',thinking:'study',reading:'study',idle:'study',away:'study',sleep:'bedroom',walk:'gym',run:'gym',bench:'gym'};
+ function day(weekend){
+  const slots=[],add=(start,action,label,room=rooms[action])=>slots.push({start,action,label,room});
+  function exercise(start,end){
+   const minutes=(end-start)/60,warm=minutes>=30?5:3,run=minutes>=45?15:minutes>=30?10:5;
+   add(start,'walk','Warm-up walk');add(start+warm*60,'run','Running');
+   let cursor=start+(warm+run)*60;
+   const sets=Math.min(6,Math.floor((end-cursor-60)/120));
+   for(let i=0;i<sets;i++){add(cursor,'bench','Bench training');add(cursor+30,'idle','Rest between sets','gym');cursor+=120}
+   if(cursor<end)add(cursor,'walk','Cooldown walk');
+  }
+  add(0,'sleep','Sleeping');
+  if(weekend){
+   add(time(7),'reading','Weekend reading');exercise(time(8,30),time(9));add(time(9),'thinking','Weekend thinking');
+   add(time(10,30),'reading','Weekend reading');add(time(12),'away','Lunch time');add(time(13),'thinking','Weekend thinking');
+   exercise(time(14),time(14,30));add(time(14,30),'reading','Weekend reading');add(time(16),'idle','Taking it easy');
+   add(time(17),'away','Dinner time');add(time(18,30),'reading','Weekend reading');exercise(time(20),time(20,30));
+   add(time(20,30),'thinking','Weekend thinking');add(time(21,30),'reading','Weekend reading');
+  }else{
+   exercise(time(7),time(7,30));add(time(7,30),'coding','Focused work');
+   exercise(time(9,30),time(9,45));add(time(9,45),'coding','Focused work');
+   add(time(12),'away','Lunch time');add(time(13),'thinking','Thinking');add(time(13,30),'coding','Focused work');
+   add(time(15),'thinking','Thinking');add(time(15,20),'coding','Focused work');add(time(17),'away','Dinner time');
+   exercise(time(18,30),time(19,15));add(time(19,15),'coding','Focused work');
+   exercise(time(21),time(21,20));add(time(21,20),'coding','Focused work');
+  }
+  add(time(23),'sleep','Sleeping');return Object.freeze(slots.map(Object.freeze));
+ }
+ const weekday=day(false),weekend=day(true);
+ function at(date){
+  const stamp=date?.getTime();if(!Number.isFinite(stamp))throw TypeError('A valid Date is required');
+  const local=new Date(stamp+8*3600000),second=time(local.getUTCHours(),local.getUTCMinutes())+local.getUTCSeconds();
+  const isWeekend=[0,6].includes(local.getUTCDay()),list=isWeekend?weekend:weekday;
+  let i=list.length-1;while(list[i].start>second)i--;
+  const selected=list[i],midnight=Date.UTC(local.getUTCFullYear(),local.getUTCMonth(),local.getUTCDate())-8*3600000;
+  const startedAt=midnight+selected.start*1000;
+  return {...selected,startedAt,slot:String(startedAt),weekend:isWeekend};
+ }
+ return Object.freeze({at,weekday,weekend});
+})();
+</script>
+<script>
+// Hearts: tap the heart (or double-click a card) to like it. Remembered in this browser only.
+(function(){
+var still=matchMedia('(prefers-reduced-motion:reduce)').matches,key='la-likes',saved={};
+try{saved=JSON.parse(localStorage.getItem(key))||{}}catch(e){}
+var path='M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z',colors=['#F2B632','var(--liked)','#8B5CF6'];
+document.querySelectorAll('.desk .note').forEach(function(note,i){
+ var btn=note.querySelector('.like');if(!btn)return;
+ function set(on,fx){
+  btn.setAttribute('aria-pressed',on?'true':'false');saved[i]=on;
+  try{localStorage.setItem(key,JSON.stringify(saved))}catch(e){}
+  if(!on||!fx||still)return;
+  btn.classList.remove('pop');void btn.offsetWidth;btn.classList.add('pop');
+  for(var k=0;k<6;k++){var d=document.createElement('i');d.className='like-dot';d.style.setProperty('--a',k*60+'deg');d.style.background=colors[k%3];btn.appendChild(d);setTimeout(d.remove.bind(d),600)}
+ }
+ set(!!saved[i],false);
+ btn.addEventListener('click',function(){set(btn.getAttribute('aria-pressed')!=='true',true)});
+ note.addEventListener('dblclick',function(e){
+  if(e.target.closest('.like'))return;
+  var s=getSelection&&getSelection();if(s)s.removeAllRanges();
+  set(true,true);if(still)return;
+  var old=note.querySelector('.big-heart');if(old)old.remove();
+  var big=document.createElementNS('http://www.w3.org/2000/svg','svg');big.setAttribute('class','big-heart');big.setAttribute('viewBox','0 0 24 24');big.setAttribute('aria-hidden','true');
+  var p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',path);big.appendChild(p);note.appendChild(big);setTimeout(function(){big.remove()},850);
+ });
+});
+})();
+// LIVE badge: shows what pixel LA is doing right now, using the same timetable as Pixel World.
+(function(){
+var door=document.querySelector('.pixel-door'),badge=door&&door.querySelector('.live-badge');
+if(!badge||!window.LifeTimetable)return;
+var label=badge.querySelector('span'),base=door.getAttribute('aria-label');
+function tick(){
+ try{var now=LifeTimetable.at(new Date()).label}catch(e){return}
+ label.textContent='Now: '+now;badge.hidden=false;
+ door.setAttribute('aria-label',base+'. Right now: '+now);
+}
+tick();setInterval(tick,30000);
+})();
+</script>
 </body>
 </html>
