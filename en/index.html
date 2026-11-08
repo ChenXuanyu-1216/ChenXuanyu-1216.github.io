@@ -306,6 +306,16 @@ nav a.cta{border-radius:8px}
 .live-badge span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @keyframes live-pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,32,79,.55)}60%{box-shadow:0 0 0 6px rgba(212,32,79,0)}}
 @keyframes live-dot{0%,100%{opacity:1}50%{opacity:.35}}
+/* Copy email: filled while it says "copied" */
+.contact .copy.done,.contact .copy.done:hover{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+/* Footer easter egg: pixel LA walks along the top edge of the footer, once per visit */
+footer{position:relative}
+.walk-lane{position:absolute;left:0;right:0;bottom:100%;height:56px;overflow:hidden;pointer-events:none}
+.walker{position:absolute;left:0;bottom:0;width:27px;height:56px;filter:drop-shadow(1px 0 0 #FFFFFF) drop-shadow(-1px 0 0 #FFFFFF) drop-shadow(0 1px 0 #FFFFFF) drop-shadow(0 -1px 0 #FFFFFF);background:url("/assets/la-walk-v1.png") 0 0/405px 56px no-repeat;transform:translateX(-40px)}
+.walker.go{animation:walk-steps .95s steps(15) infinite,walk-across var(--dur,40s) linear forwards}
+@keyframes walk-steps{to{background-position:-405px 0}}
+@keyframes walk-across{from{transform:translateX(-40px)}to{transform:translateX(var(--to,100vw))}}
+@media (prefers-reduced-motion:reduce){.walk-lane{display:none}}
 @media (prefers-reduced-motion:reduce){.like.pop svg,.live-badge b,.live-badge b::before{animation:none}}
 </style>
 </head>
@@ -479,7 +489,7 @@ Building my own projects.</h1>
 
   <section id="contact" class="contact"><div class="wrap">
     <h2>Something on your mind? Send me an email.</h2>
-    <div class="contact-email"><a class="mail" href="mailto:chenxuanyu265@gmail.com">chenxuanyu265@gmail.com</a><button class="copy" type="button">Copy email</button></div>
+    <div class="contact-email"><a class="mail" href="mailto:chenxuanyu265@gmail.com">chenxuanyu265@gmail.com</a><button class="copy" type="button" aria-live="polite">Copy email</button></div>
     <ul><li><a href="https://github.com/ChenXuanyu-1216">GitHub</a></li><li><a href="https://x.com/ChenY71343">X</a></li></ul>
   </div></section>
 </main>
@@ -631,7 +641,7 @@ function upd(){tk=0;var y=window.scrollY,m=document.documentElement.scrollHeight
 addEventListener('scroll',function(){if(!tk)tk=requestAnimationFrame(upd)},{passive:true});upd();
 if('IntersectionObserver' in window){var so=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)links.forEach(function(a){if(a.getAttribute('href')==='#'+e.target.id)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})})},{rootMargin:'-40% 0px -55% 0px'});[document.querySelector('.hero'),document.getElementById('about'),document.getElementById('work'),document.getElementById('pixel-life'),document.getElementById('room'),document.getElementById('contact')].forEach(function(s){if(s)so.observe(s)})}
 var cb=document.querySelector('.contact .copy'),ml=document.querySelector('.contact .mail');
-if(cb&&ml)cb.onclick=function(){var t=ml.textContent.trim();function ok(){cb.textContent='Copied ✓';setTimeout(function(){cb.textContent='Copy email'},1800)}
+if(cb&&ml)cb.onclick=function(){var t=ml.textContent.trim();function ok(){cb.classList.add('done');cb.textContent='Copied ✓';setTimeout(function(){cb.classList.remove('done');cb.textContent='Copy email'},1800)}
 function fb(){var a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
 if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
 })();
@@ -750,13 +760,28 @@ document.querySelectorAll('.desk .note').forEach(function(note,i){
 (function(){
 var door=document.querySelector('.pixel-door'),badge=door&&door.querySelector('.live-badge');
 if(!badge||!window.LifeTimetable)return;
-var label=badge.querySelector('span'),base=door.getAttribute('aria-label');
+var label=badge.querySelector('span'),base=door.getAttribute('aria-label'),img=door.querySelector('img'),src=door.querySelector('source'),room0;
+var views={gym:['/assets/pixel-life-loop-v8.gif','/assets/pixel-life-still-v8.png',"Pixel LA doing a bench press on a purple bench. Visit my pixel world to see what I am up to."],study:['/assets/pixel-life-study-v9.gif','/assets/pixel-life-study-still-v9.png',"Pixel LA coding at the desk in the study."],bedroom:['/assets/pixel-life-bedroom-still-v9.png','/assets/pixel-life-bedroom-still-v9.png',"Pixel LA asleep under a gray quilt in the bedroom."]};
+function show(room){var v=views[room];if(!v||room===room0||!img)return;room0=room;img.src=v[0];img.alt=v[2];if(src)src.srcset=v[1]}
 function tick(){
- try{var now=LifeTimetable.at(new Date()).label}catch(e){return}
+ try{var at=LifeTimetable.at(new Date()),now=at.label}catch(e){return}show(at.room);
  label.textContent='Now: '+now;badge.hidden=false;
  door.setAttribute('aria-label',base+'. Right now: '+now);
 }
 tick();setInterval(tick,30000);
+})();
+</script>
+<script>
+// Footer easter egg: the first time the footer comes into view, pixel LA walks across its top edge.
+(function(){
+var ft=document.querySelector('footer');
+if(!ft||!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+var lane=document.createElement('div'),w=document.createElement('span');lane.className='walk-lane';lane.setAttribute('aria-hidden','true');w.className='walker';lane.appendChild(w);ft.appendChild(lane);
+var io=new IntersectionObserver(function(es){if(!es[0].isIntersecting)return;io.disconnect();
+ var d=lane.clientWidth+80;w.style.setProperty('--to',(lane.clientWidth+40)+'px');w.style.setProperty('--dur',(d/23.6).toFixed(1)+'s');
+ w.classList.add('go');w.addEventListener('animationend',function(e){if(e.animationName==='walk-across')lane.remove()});
+},{threshold:.9});
+io.observe(ft);
 })();
 </script>
 </body>
