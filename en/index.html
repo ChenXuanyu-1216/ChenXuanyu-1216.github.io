@@ -477,7 +477,7 @@ Building my own projects.</h1>
     </div>
     <div class="desk" aria-hidden="true">
       <div class="note n1"><b>Working on</b>A WeChat mini program that turns photos of lecture slides into study outlines.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
-      <div class="note n2"><b>Tools I use</b>Mostly Codex, followed by Claude.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+      <div class="note n2"><b>Tools I use</b>Both Codex and Claude Code, a lot.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
       <div class="note n3"><b>Research</b>Pre-FoG: investigating whether gait data can give an early warning of freezing.<button class="like" type="button" aria-label="Like" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
     </div>
   </div>
@@ -523,8 +523,8 @@ Building my own projects.</h1>
         <p class="stage-hint"><span class="hint-d">Drag to rotate · Ctrl + scroll to zoom · Select an object</span><span class="hint-t">Drag to rotate · Tap an object</span></p>
       </div>
       <ol class="items" id="items">
-<li data-k="monitor"><button type="button" aria-expanded="false"><b>01</b><span>Codex</span><em>My main tool for projects</em></button><p>I mostly use Codex for coding and projects, with Claude as my next choice.</p></li>
-<li data-k="tower"><button type="button" aria-expanded="false"><b>02</b><span>Claude</span><em>Another tool I use</em></button><p>Alongside Codex, I also use Claude.</p></li>
+<li data-k="monitor"><button type="button" aria-expanded="false"><b>01</b><span>Codex</span><em>A go-to for coding</em></button><p>I use both Codex and Claude Code a lot for coding and projects.</p></li>
+<li data-k="tower"><button type="button" aria-expanded="false"><b>02</b><span>Claude Code</span><em>A go-to for coding</em></button><p>Like Codex, Claude Code is one of the tools I use most for coding.</p></li>
 <li data-k="laptop"><button type="button" aria-expanded="false"><b>03</b><span>My laptop</span><em>Windows · i7-13650HX · RTX 4060</em></button><p>Intel Core i7-13650HX, 16 GB RAM at 4800 MT/s, NVIDIA GeForce RTX 4060 Laptop GPU with 8 GB VRAM, and around 1.40 TB of storage.</p><p>When I bought this laptop, I thought university would mostly be classes and games. Looking back, I have some regrets.</p></li>
 <li data-k="notes"><button type="button" aria-expanded="false"><b>04</b><span>Beyond my coursework</span><em>Nutrition, fitness, and AI news</em></button><p>I enjoy working out and have been learning about nutrition and health. I also follow AI news to see what is new.</p></li>
 <li data-k="shelf"><button type="button" aria-expanded="false"><b>05</b><span>Projects and books</span><em>What I am building and reading</em></button><p><a href="#work">Pre-FoG</a> · Researching early prediction of freezing of gait with a professor.</p><p><a href="#work">Lecture Outline Mini Program</a> · My personal project for turning lecture photos into editable outlines with Word export.</p><p><a href="#work">Evidence-Map</a> · My personal project to help beginners understand their repositories through code maps and source references.</p><p>Currently reading Software Engineering and Practice.</p></li>
@@ -835,7 +835,7 @@ io.observe(ft);
 // Story highlights: tap a circle to open a small story viewer (auto-advances every 5 s).
 (function(){
 var row=document.querySelector('.highlights');if(!row)return;
-var items=[{"img":"/assets/hl-gym-v1.webp","name":"Gym","text":"I like working out. Pixel me trains every day: a warm-up walk, a run, then bench press."},{"img":"/assets/hl-code-v1.webp","name":"Coding","text":"For projects I mostly use Codex, then Claude."},{"img":"/assets/hl-coffee-v1.webp","name":"Coffee","text":"When I study: a Starbucks or Luckin coffee and some light music."},{"img":"/assets/hl-read-v1.webp","name":"Reading","text":"Weekends are for reading and thinking, not coding."},{"img":"/assets/hl-night-v1.webp","name":"Night","text":"Lights out at 11 pm (at least for pixel me)."}];
+var items=[{"img":"/assets/hl-gym-v1.webp","name":"Gym","text":"I like working out. Pixel me trains every day: a warm-up walk, a run, then bench press."},{"img":"/assets/hl-code-v1.webp","name":"Coding","text":"For coding, I use both Codex and Claude Code a lot."},{"img":"/assets/hl-coffee-v1.webp","name":"Coffee","text":"When I study: a Starbucks or Luckin coffee and some light music."},{"img":"/assets/hl-read-v1.webp","name":"Reading","text":"Weekends are for reading and thinking, not coding."},{"img":"/assets/hl-night-v1.webp","name":"Night","text":"Lights out at 11 pm (at least for pixel me)."}];
 var still=matchMedia('(prefers-reduced-motion:reduce)').matches,seenKey='la-seen',seen={};
 try{seen=JSON.parse(localStorage.getItem(seenKey))||{}}catch(e){}
 var btns=row.querySelectorAll('.hl');btns.forEach(function(b,i){if(seen[i])b.classList.add('seen')});

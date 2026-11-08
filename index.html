@@ -481,7 +481,7 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
     </div>
     <div class="desk" aria-hidden="true">
       <div class="note n1"><b>最近在做</b>把课堂上拍的 PPT 整理成大纲，做成一个微信小程序。<button class="like" type="button" aria-label="点赞" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
-      <div class="note n2"><b>常用工具</b>主要用 Codex，其次是 Claude。<button class="like" type="button" aria-label="点赞" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+      <div class="note n2"><b>常用工具</b>Codex 和 Claude Code 都常用。<button class="like" type="button" aria-label="点赞" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
       <div class="note n3"><b>正在研究</b>Pre-FoG：研究能否通过步态数据，提前预测冻结步态。<button class="like" type="button" aria-label="点赞" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
     </div>
   </div>
@@ -527,8 +527,8 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
         <p class="stage-hint"><span class="hint-d">拖动旋转 · Ctrl + 滚轮缩放 · 点击物品查看</span><span class="hint-t">拖动旋转 · 点击物品查看</span></p>
       </div>
       <ol class="items" id="items">
-<li data-k="monitor"><button type="button" aria-expanded="false"><b>01</b><span>Codex</span><em>做项目时最常用</em></button><p>写代码、做项目时，我最常用的是 Codex，Claude 排在其次。</p></li>
-<li data-k="tower"><button type="button" aria-expanded="false"><b>02</b><span>Claude</span><em>另一个常用工具</em></button><p>Codex 之外，Claude 是我另一个常用的工具。</p></li>
+<li data-k="monitor"><button type="button" aria-expanded="false"><b>01</b><span>Codex</span><em>写代码常用</em></button><p>写代码、做项目时，Codex 和 Claude Code 我都经常用。</p></li>
+<li data-k="tower"><button type="button" aria-expanded="false"><b>02</b><span>Claude Code</span><em>写代码常用</em></button><p>和 Codex 一样，Claude Code 也是我写代码时经常用的工具。</p></li>
 <li data-k="laptop"><button type="button" aria-expanded="false"><b>03</b><span>我的电脑</span><em>Windows · i7-13650HX · RTX 4060</em></button><p>Intel Core i7-13650HX 处理器，16 GB 内存（4800 MT/s），NVIDIA GeForce RTX 4060 Laptop GPU（8 GB 显存），总存储空间约 1.40 TB。</p><p>买这台电脑时，觉得大学也就是上上课、玩玩游戏。现在想想，有点后悔。</p></li>
 <li data-k="notes"><button type="button" aria-expanded="false"><b>04</b><span>课外在学什么</span><em>营养健康、健身与 AI 动态</em></button><p>平时喜欢健身，最近也在学一些营养和健康方面的知识。也会关注 AI 新闻，看看最近又有什么新东西。</p></li>
 <li data-k="shelf"><button type="button" aria-expanded="false"><b>05</b><span>项目与书籍</span><em>我在做的项目和读的书</em></button><p><a href="#work">Pre-FoG</a> · 跟随教授研究冻结步态的提前预测。</p><p><a href="#work">课堂 PPT 大纲生成小程序</a> · 我的个人项目，把课堂 PPT 照片整理成可编辑的大纲，支持导出 Word。</p><p><a href="#work">Evidence-Map</a> · 我的个人项目，用代码地图和源码引用帮助初学者理解自己的仓库。</p><p>在读《软件工程与实践》。</p></li>
@@ -850,7 +850,7 @@ io.observe(ft);
 // Story highlights: tap a circle to open a small story viewer (auto-advances every 5 s).
 (function(){
 var row=document.querySelector('.highlights');if(!row)return;
-var items=[{"img":"/assets/hl-gym-v1.webp","name":"健身","text":"喜欢健身。像素里的我每天都有训练：先热身慢走，再跑步和卧推。"},{"img":"/assets/hl-code-v1.webp","name":"写代码","text":"做项目时最常用 Codex，Claude 排在其次。"},{"img":"/assets/hl-coffee-v1.webp","name":"咖啡","text":"学习时，喝一杯星巴克或瑞幸咖啡，听一些轻音乐。"},{"img":"/assets/hl-read-v1.webp","name":"阅读","text":"周末不写代码，留给阅读和思考。"},{"img":"/assets/hl-night-v1.webp","name":"晚安","text":"晚上 11 点准时睡觉（至少像素里的我是这样）。"}];
+var items=[{"img":"/assets/hl-gym-v1.webp","name":"健身","text":"喜欢健身。像素里的我每天都有训练：先热身慢走，再跑步和卧推。"},{"img":"/assets/hl-code-v1.webp","name":"写代码","text":"写代码时，Codex 和 Claude Code 我都经常用。"},{"img":"/assets/hl-coffee-v1.webp","name":"咖啡","text":"学习时，喝一杯星巴克或瑞幸咖啡，听一些轻音乐。"},{"img":"/assets/hl-read-v1.webp","name":"阅读","text":"周末不写代码，留给阅读和思考。"},{"img":"/assets/hl-night-v1.webp","name":"晚安","text":"晚上 11 点准时睡觉（至少像素里的我是这样）。"}];
 var still=matchMedia('(prefers-reduced-motion:reduce)').matches,seenKey='la-seen',seen={};
 try{seen=JSON.parse(localStorage.getItem(seenKey))||{}}catch(e){}
 var btns=row.querySelectorAll('.hl');btns.forEach(function(b,i){if(seen[i])b.classList.add('seen')});
