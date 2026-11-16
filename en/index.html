@@ -202,6 +202,10 @@ section{padding:clamp(110px,16vh,180px) 0}
 .items li>p:last-child{padding-bottom:16px}
 .items a{color:var(--link)}
 .room.flat{grid-template-columns:1fr}
+/* Side by side, the 3D stage alone sets the row height (4:3). The list scrolls inside that height instead of
+   growing the row, which used to stretch the stage taller and, through aspect-ratio, wider over the list. */
+.room>.stage{width:100%;min-width:0}
+@media (min-width:981px){.room:not(.flat)>.items{contain:size}}
 
 /* ---------- Contact ---------- */
 .contact{padding-bottom:64px;min-height:90vh;display:flex;align-items:center}
@@ -773,7 +777,9 @@ var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 var V={monitor:[.15,1.4,2.8,0,1.5,-.35],laptop:[.55,1.25,2.8,-1.15,.95,.1],tower:[.6,1.3,3.2,1.95,.4,0],notes:[.35,1.1,2.1,1,.83,.38],shelf:[.35,1.35,3.4,-1.5,2.2,-1.45],mug:[.3,1.15,1.8,-.65,.9,.35]};
 var DEF=[.45,1.2,5.4,0,1.15,0],goal=DEF.slice(),cur=reduce?DEF.slice():[-.5,1.2,7.2,0,1.15,0];
 function glow(){Object.keys(groups).forEach(function(k){var v=k===sel?.38:k===hov?.2:0;groups[k].forEach(function(m){if(m.material.emissive){m.material.emissive.setHex(0x8B5CF6);m.material.emissiveIntensity=v}})})}
-function pick(k){sel=sel===k?null:k;lis.forEach(function(li){var o=li.getAttribute('data-k')===sel;li.classList.toggle('open',o);li.querySelector('button').setAttribute('aria-expanded',o)});goal=(sel&&V[sel]||DEF).slice();glow();if(sel&&matchMedia('(max-width:980px)').matches)stage.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'})}
+function pick(k){sel=sel===k?null:k;lis.forEach(function(li){var o=li.getAttribute('data-k')===sel;li.classList.toggle('open',o);li.querySelector('button').setAttribute('aria-expanded',o)});goal=(sel&&V[sel]||DEF).slice();glow();if(sel&&matchMedia('(max-width:980px)').matches)stage.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});else if(sel)reveal()}
+/* Side by side the list has a fixed height and scrolls, so bring an opened item fully into view inside it (without moving the page). */
+function reveal(){var L=lis[0].parentNode,li=L.querySelector('li.open');if(!li)return;var lr=L.getBoundingClientRect(),r=li.getBoundingClientRect(),top=r.top-lr.top-8,d=r.top<lr.top+8?top:Math.min(r.bottom-lr.bottom+8,top);if(Math.abs(d)>1&&(d<0||r.bottom>lr.bottom-8))L.scrollBy({top:d,behavior:reduce?'auto':'smooth'})}
 lis.forEach(function(li){li.querySelector('button').onclick=function(){pick(li.getAttribute('data-k'))}});
 function init(){
 var R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
