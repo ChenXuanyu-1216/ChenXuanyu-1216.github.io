@@ -245,6 +245,26 @@ footer .wrap{position:relative;display:flex;justify-content:space-between;gap:24
 .term-in span{color:#F6C35B}
 .term-in input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit}
 
+/* ---------- Motion: section headings, git log, flying into Pixel World ---------- */
+/* Section headings rise word by word, line after line, like the hero headline. The JS adds .rise only when motion is allowed. */
+.rise .rl{display:inline-block;vertical-align:top;padding-bottom:.14em;margin-bottom:-.14em;clip-path:inset(-.6em -.4em 0 -.4em)}
+.rise.done .rl{clip-path:none}
+.rise .rl>span{display:inline-block;transition:transform 1.2s var(--ease) calc(var(--k)*.09s),filter 1.2s var(--ease) calc(var(--k)*.09s),opacity 1.2s var(--ease) calc(var(--k)*.09s)}
+.rise:not(.up) .rl>span{transform:translateY(80%);filter:blur(10px);opacity:0}
+/* Git log: the command types itself, then the graph line draws down and each commit pops in. */
+.gitlog .caret{display:inline-block;width:.55em;height:1.15em;margin-left:2px;vertical-align:-.22em;background:var(--mute);animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.gitlog ol::before{transform-origin:top;transition:transform 1s var(--ease)}
+.gitlog li{transition:opacity .6s var(--ease) calc(.3s + var(--i,0)*.22s),transform .6s var(--ease) calc(.3s + var(--i,0)*.22s)}
+.gitlog li::before{transition:transform .45s cubic-bezier(.34,1.56,.64,1) calc(.3s + var(--i,0)*.22s)}
+.gl-wait ol::before{transform:scaleY(0)}
+.gl-wait li{opacity:0;transform:translateX(-12px)}
+.gl-wait li::before{transform:scale(0)}
+/* Flying into Pixel World: the room picture grows to fill the screen while the page fades to night. */
+.fly-dim{position:fixed;inset:0;z-index:90;background:var(--night);opacity:0;pointer-events:none}
+.fly{position:fixed;z-index:91;overflow:hidden;background:#3E4E4E;pointer-events:none;box-shadow:0 0 0 1px var(--line),0 40px 120px -20px rgba(139,92,246,.6)}
+.fly img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated;display:block}
+
 /* ---------- Chinese type: no wide tracking tricks, taller lines, heavier CJK weight for titles ---------- */
 :root{--display:"Archivo","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;--sans:"Geist","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif}
 body{line-height:1.75}
@@ -930,6 +950,73 @@ var io=new IntersectionObserver(function(es){if(!es[0].isIntersecting)return;io.
  w.classList.add('go');w.addEventListener('animationend',function(e){if(e.animationName==='walk-across')lane.remove()});
 },{threshold:.9});
 io.observe(fw);
+})();
+</script>
+<script>
+// Motion: section headings rise into view, the git log types itself, and the pixel window flies you into Pixel World.
+(function(){
+if(matchMedia('(prefers-reduced-motion:reduce)').matches||!('IntersectionObserver' in window))return;
+function once(el,fn,margin){var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();fn()}},{rootMargin:margin||'0px 0px -12% 0px'});io.observe(el)}
+
+// 1. Headings: wrap each word (or each CJK phrase) in a clipped box, stagger by line, reveal when scrolled to.
+var CJK=/[　-鿿＀-￯]/;
+document.querySelectorAll('.about h2,.sec-head h2,.pixel h2,.contact h2').forEach(function(h){
+ var text=h.textContent.trim();if(!text||h.children.length)return;
+ var parts=CJK.test(text)?text.match(/[^，。？！、]+[，。？！、]*/g):text.split(/\s+/);
+ h.setAttribute('aria-label',text);h.textContent='';
+ var box=document.createElement('span');box.setAttribute('aria-hidden','true');h.appendChild(box);
+ var words=parts.map(function(p,i){
+  if(i&&!CJK.test(text))box.appendChild(document.createTextNode(' '));
+  var o=document.createElement('span'),n=document.createElement('span');o.className='rl';n.textContent=p;o.appendChild(n);box.appendChild(o);return o});
+ function stagger(){var line=-1,top=null,pos=0;words.forEach(function(w){if(w.offsetTop!==top){top=w.offsetTop;line++;pos=0}w.style.setProperty('--k',(line*1.4+pos++*.45).toFixed(2))})}
+ stagger();h.classList.add('rise');
+ once(h,function(){stagger();h.classList.add('up');setTimeout(function(){h.classList.add('done')},1200+words.length*90+400)});
+});
+
+// 2. Git log: type the command, then draw the graph and pop in each commit.
+var gl=document.querySelector('.gitlog'),cmd=gl&&gl.querySelector('code.cmd');
+if(cmd){
+ var full=cmd.textContent,cut=full.indexOf('#');if(cut<0)cut=full.length;
+ cmd.textContent='';
+ var sr=document.createElement('span');sr.className='sr';sr.textContent=full;
+ var typed=document.createElement('span');typed.setAttribute('aria-hidden','true');
+ var caret=document.createElement('span');caret.className='caret';caret.setAttribute('aria-hidden','true');
+ cmd.appendChild(sr);cmd.appendChild(typed);cmd.appendChild(caret);
+ [].forEach.call(gl.querySelectorAll('.path>li'),function(li,i){li.style.setProperty('--i',i)});
+ gl.classList.add('gl-wait');
+ once(gl,function(){
+  var n=0;
+  (function type(){
+   n++;typed.textContent=full.slice(0,n);
+   if(n<full.length)setTimeout(type,n<cut?38+Math.random()*40:n===cut?260:9);
+   else{gl.classList.remove('gl-wait');setTimeout(function(){caret.remove()},3200)}
+  })();
+ },'0px 0px -18% 0px');
+}
+
+// 3. Pixel World: grow the room picture to fill the screen, then open the page (it fades in from the same night colour).
+var img=document.getElementById('pxImg');
+document.querySelectorAll('.pixel .btn,.pixel .window').forEach(function(a){
+ a.addEventListener('click',function(e){
+  if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||!img||!img.animate)return;
+  e.preventDefault();var href=a.href,r=img.getBoundingClientRect();
+  var dim=document.createElement('div');dim.className='fly-dim';
+  var fly=document.createElement('div');fly.className='fly';fly.setAttribute('aria-hidden','true');
+  var pic=document.createElement('img');pic.src=img.currentSrc||img.src;pic.alt='';fly.appendChild(pic);
+  document.body.appendChild(dim);document.body.appendChild(fly);
+  var W=innerWidth,H=innerHeight,ease='cubic-bezier(.76,0,.24,1)';
+  dim.animate([{opacity:0},{opacity:1}],{duration:700,easing:'ease-out',fill:'forwards'});
+  fly.animate([{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'16px'},{left:'0px',top:'0px',width:W+'px',height:H+'px',borderRadius:'0px'}],{duration:850,easing:ease,fill:'forwards'});
+  pic.animate([{transform:'scale(1)'},{transform:'scale(1.12)'}],{duration:1050,easing:'ease-in',fill:'forwards'});
+  fly.animate([{opacity:1},{opacity:0}],{duration:260,delay:820,easing:'ease-in',fill:'forwards'}).onfinish=function(){
+   try{sessionStorage.setItem('la-fly','1')}catch(err){}
+   location.href=href;
+  };
+  if(window.introSound)introSound.whoosh(true);
+ });
+});
+// Coming back with the browser's Back button can restore this page mid-flight, so clear the overlay.
+addEventListener('pageshow',function(e){if(e.persisted)document.querySelectorAll('.fly,.fly-dim').forEach(function(x){x.remove()})});
 })();
 </script>
 </body>
