@@ -368,7 +368,7 @@ var c=ready();if(!c)return;var t=c.currentTime;
 bell(880,t+.05,.03,2,.7);
 }
 /* ...and a breath of air as the curtain lifts. */
-function whoosh(gesture){var c=ready(gesture);if(!c)return;air(c.currentTime,.9,'bandpass',400,2600,.09,.35,.5)}
+function whoosh(gesture){var c=ready(gesture);if(!c)return;air(c.currentTime,.9,'bandpass',400,2600,.09,.35,.5);setTimeout(ambStart,1400)}
 document.addEventListener('DOMContentLoaded',function(){
 var b=document.getElementById('soundBtn');if(!b)return;
 b.setAttribute('aria-pressed',on);
@@ -376,11 +376,64 @@ b.onclick=function(){
 on=!on;b.setAttribute('aria-pressed',on);
 try{localStorage.setItem('la-sound',on?'on':'off')}catch(e){}
 if(master)master.gain.value=on?VOL:0;
-if(on){var c=ready(true);if(c)bell(880,c.currentTime,.035,1.2,.5)}
+if(on){var c=ready(true);if(c){bell(880,c.currentTime,.035,1.2,.5);ambStart()}}
 };
 });
+/* Background music, only while sound is on: "Study session", a lo-fi piece composed live in the browser.
+   Dm9 G13 Cmaj9 Am9 at 76 BPM: soft electric-piano chords, a round bassline, a swung beat, a little tape wobble
+   and vinyl crackle. The bass and drums vary at random, so it never loops exactly. */
+var amb=null;
+function ambStart(){
+ if(amb||!on||!ctx)return;
+ if(ctx.state!=='running'){if(unlocked)ctx.resume().then(function(){if(ctx.state==='running')ambStart()});return}
+ var now=ctx.currentTime,bus=ctx.createGain();bus.gain.setValueAtTime(0,now);bus.gain.linearRampToValueAtTime(.5,now+4);bus.connect(master);
+ var send=ctx.createGain();send.gain.value=.22;bus.connect(send);send.connect(verb);
+ var tape=ctx.createBiquadFilter();tape.type='lowpass';tape.frequency.value=3200;tape.connect(bus);
+ var wob=ctx.createOscillator(),wg=ctx.createGain();wob.frequency.value=.25;wg.gain.value=600;wob.connect(wg);wg.connect(tape.frequency);wob.start();
+ var crk=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate),cd=crk.getChannelData(0);for(var k=0;k<cd.length;k++)cd[k]=Math.random()<.0008?(Math.random()*2-1)*.7:0;
+ var cr=ctx.createBufferSource(),ch=ctx.createBiquadFilter(),cg=ctx.createGain();cr.buffer=crk;cr.loop=true;ch.type='highpass';ch.frequency.value=1500;cg.gain.value=.05;cr.connect(ch);ch.connect(cg);cg.connect(bus);cr.start();
+ amb={bus:bus};
+ function mtof(m){return 440*Math.pow(2,(m-69)/12)}
+ function pick(a){return a[Math.floor(Math.random()*a.length)]}
+ function v(type,f,at,a,peak,dec){var o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;o.connect(g);g.connect(tape);env(g,at,a,peak,dec);o.start(at);o.stop(at+a+dec+.05)}
+ function hiss(at,dur,type,f,q,peak){var s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noiseBuf;s.playbackRate.value=.9+Math.random()*.2;fl.type=type;fl.frequency.value=f;fl.Q.value=q;s.connect(fl);fl.connect(g);g.connect(tape);env(g,at,.001,peak,dur);s.start(at,Math.random()*1.5);s.stop(at+dur+.05)}
+ function keys(ms,at,vel){ms.forEach(function(m,k){var f=mtof(m+12),g=ctx.createGain(),o=ctx.createOscillator(),o2=ctx.createOscillator(),g2=ctx.createGain(),s=at+k*.012;
+  o.type='sine';o2.type='sine';o.frequency.value=f;o2.frequency.value=f*2.002;g2.gain.value=.18;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(tape);
+  env(g,s,.01,.035*vel,2.2);o.start(s);o2.start(s);o.stop(s+2.4);o2.stop(s+2.4)})}
+ function bell(m,at){var f=mtof(m);[[1,1,1.6],[2,.38,.9],[3,.14,.5]].forEach(function(h){v('sine',f*h[0],at,.004,.03*h[1],h[2])})}
+ function kick(at,vel){var o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(120,at);o.frequency.exponentialRampToValueAtTime(45,at+.12);o.connect(g);g.connect(tape);env(g,at,.003,.42*vel,.28);o.start(at);o.stop(at+.35)}
+ var chords=[[50,53,57,60,64],[43,53,59,64,69],[48,52,55,59,62],[45,55,60,64,71]],roots=[38,31,36,33];
+ var beat=60/76,step=beat/2,swing=.17*beat,i=0,t=now+.15;
+ amb.timer=setInterval(function(){
+  var cur=ctx.currentTime;
+  if(t<cur-.05){var skip=Math.ceil((cur-t)/step);i+=skip;t+=skip*step}  /* after a pause, skip ahead instead of playing a burst of late notes */
+  while(t<cur+.25){
+   if(on){
+    var bar=Math.floor(i/8),pos=i%8,at=t+(pos%2?swing:0),c=bar%4;
+    if(pos===0){keys(chords[c],at,.9);v('triangle',mtof(roots[c]),at,.01,.16,1.1)}
+    if(pos===3&&Math.random()<.6)keys(chords[c].slice(2),at,.55);
+    if(pos===4)v('triangle',mtof(roots[c]+(Math.random()<.5?7:12)),at,.01,.12,.6);
+    if(pos===6&&Math.random()<.5)v('triangle',mtof(roots[c]+pick([3,5,10])),at,.01,.1,.4);
+    if(pos===0||(pos===5&&Math.random()<.7))kick(at,pos?.7:1);
+    if(pos===2||pos===6){hiss(at,.16,'bandpass',1800,.8,.1+Math.random()*.03);v('triangle',190,at,.002,.05,.09)}
+    hiss(at,.035,'highpass',7000,.7,.045*(pos%2?.5:.8)*(.7+Math.random()*.3));
+    if(pos===4&&Math.random()<.35)bell(pick([69,72,74,76,79]),at);
+   }
+   i++;t+=step;
+  }
+ },50);
+}
+/* Fade the music out and pause the audio while the tab is hidden; bring it back when the visitor returns. */
+document.addEventListener('visibilitychange',function(){
+ if(!amb||!ctx)return;var t=ctx.currentTime,g=amb.bus.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);
+ if(document.hidden){g.linearRampToValueAtTime(0,t+.3);setTimeout(function(){if(document.hidden)ctx.suspend()},350)}
+ else if(on){ctx.resume().then(function(){var n=ctx.currentTime;g.cancelScheduledValues(n);g.setValueAtTime(0,n);g.linearRampToValueAtTime(.5,n+2)})}
+});
+/* After a refresh the intro is skipped, so the music starts on the visitor's first click or key press instead. */
+function firstGesture(){removeEventListener('pointerdown',firstGesture,true);removeEventListener('keydown',firstGesture,true);if(on&&ready(true))ambStart()}
+addEventListener('pointerdown',firstGesture,true);addEventListener('keydown',firstGesture,true);
 function blocked(){return on&&!!(window.AudioContext||window.webkitAudioContext)&&!ready()}
-return{tick:tick,chime:chime,whoosh:whoosh,blocked:blocked,unlock:function(){ready(true)}};
+return{tick:tick,chime:chime,whoosh:whoosh,blocked:blocked,unlock:function(){ready(true)},ambient:ambStart};
 })();
 </script>
 <script>
@@ -729,6 +782,22 @@ fragmentShader:[
 ' vec2 d=pm-uMouse;h-=uPress*0.75*exp(-dot(d,d)*3.0);',
 ' h+=uStir*p.y*0.5;',
 ' return h;}',
+'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+// Dust in the light: sparse specks on a grid of cells (in CSS pixels). Each speck lives a few seconds,
+// drifting up and fading in and out, then respawns somewhere else in its cell.
+'float dust(vec2 x,float cell,float t,float sz,float seed){',
+' vec2 g=x/cell;vec2 id0=floor(g);float acc=0.0;',
+' for(int j=-1;j<=1;j++){for(int i=-1;i<=1;i++){',
+'  vec2 id=id0+vec2(float(i),float(j));',
+'  float life=7.0+7.0*hash(id+seed);',
+'  float ph=t/life+hash(id+seed+3.1);float gen=floor(ph);float f=fract(ph);',
+'  float on=step(0.5,hash(id+gen*3.17+seed+9.2));',
+'  vec2 pos=id+vec2(hash(id+gen*1.71+seed),hash(id+gen*2.39+seed+5.3));',
+'  pos.y+=f*0.85;pos.x+=0.12*sin(t*0.35+pos.y*4.0+seed);',
+'  vec2 dd=(g-pos)*cell;float fa=sin(3.14159*f);',
+'  float r2=dot(dd,dd);acc+=on*fa*fa*(exp(-r2/(sz*sz))+0.18*exp(-r2/(sz*sz*9.0)));',
+' }}',
+' return acc;}',
 'vec3 sheen(float k){vec3 g=vec3(0.949,0.714,0.196),c=vec3(0.941,0.337,0.416),v=vec3(0.545,0.361,0.965);k=fract(k)*3.0;',
 ' return k<1.0?mix(g,c,k):k<2.0?mix(c,v,k-1.0):mix(v,g,k-2.0);}',
 'void main(){',
@@ -757,6 +826,21 @@ fragmentShader:[
 ' bg+=vec3(0.545,0.361,0.965)*0.11*exp(-dot(g1,g1)*0.9)*(0.4+0.6*uFade)*rev;',
 ' bg+=vec3(0.941,0.337,0.416)*0.06*exp(-dot(g2,g2)*1.1)*(0.4+0.6*uFade)*rev;',
 ' vec3 c=bg+col*a;',
+// Dust drifts through a soft beam of light falling from the top right, mostly in the hero and at the end of the page.
+// Near the cursor the specks part around it.
+' float da=smoothstep(0.45,1.0,uFade)*rev;',
+' if(da>0.01){',
+'  vec2 px=gl_FragCoord.xy/uDpr;vec2 mpx=(uMouse*0.5*uRes.y+0.5*uRes)/uDpr;',
+'  vec2 dmp=px-mpx;float dl=length(dmp)+1e-3;px-=dmp/dl*46.0*exp(-dl*dl/14000.0)*uPress;',
+'  vec2 bd=p-vec2(1.35,1.3);vec2 bdir=normalize(vec2(-1.0,-0.8));',
+'  float along=dot(bd,bdir);float perp=bd.x*bdir.y-bd.y*bdir.x;float bw=0.18+0.32*max(along,0.0);',
+'  float beam=exp(-perp*perp/(bw*bw))*smoothstep(0.0,0.5,along)*exp(-max(along,0.0)*0.45);',
+'  float fine=dust(px,90.0,uTime,1.7,1.0);',
+'  float soft=dust(px+vec2(37.0,11.0),200.0,uTime*0.7,5.5,7.0);',
+'  vec3 warm=mix(vec3(1.0,0.86,0.62),sheen(px.x*0.0007+px.y*0.0004+uTime*0.01),0.35);',
+'  c+=warm*(fine*0.95+soft*0.3)*(0.3+0.9*beam)*da;',
+'  c+=vec3(0.95,0.78,0.55)*beam*0.085*da;',
+' }',
 ' c*=1.0-0.55*dot(uv-0.5,uv-0.5);',
 ' float n=fract(sin(dot(gl_FragCoord.xy+fract(uTime*7.0)*97.0,vec2(12.9898,78.233)))*43758.5453);',
 ' c+=(n-0.5)*0.03;',
