@@ -12,7 +12,11 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'1'%20x2%3D'1'%20y2%3D'0'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%23F2B632'%2F%3E%3Cstop%20offset%3D'.55'%20stop-color%3D'%23F0566A'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%238B5CF6'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'31'%20fill%3D'url(%23g)'%2F%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'26'%20fill%3D'%23fff'%2F%3E%3Ctext%20x%3D'32'%20y%3D'41'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-weight%3D'800'%20font-size%3D'22'%20text-anchor%3D'middle'%20fill%3D'%23262626'%3ELA%3C%2Ftext%3E%3C%2Fsvg%3E">
 <script>(function(r){r.classList.add('js');
 // Greeting curtain: replay on entry, skip browser refresh. Fails open after 5s unless it is waiting for a click.
-try{var nav=performance.getEntriesByType('navigation')[0];if((!nav||nav.type!=='reload')&&!matchMedia('(prefers-reduced-motion:reduce)').matches){r.classList.add('intro');r.introTimer=setTimeout(function(){r.classList.remove('intro')},5000)}}catch(e){}
+// Arriving from the 中文 / EN switch (sessionStorage la-lang) shows a short curtain instead (html.swap), which lifts at once.
+try{var nav=performance.getEntriesByType('navigation')[0],calm=matchMedia('(prefers-reduced-motion:reduce)').matches,sw=0;
+try{sw=sessionStorage.getItem('la-lang');sessionStorage.removeItem('la-lang')}catch(e){}
+if(sw&&!calm){r.classList.add('swap');r.swapTimer=setTimeout(function(){r.classList.remove('swap')},3000)}
+else if((!nav||nav.type!=='reload')&&!calm){r.classList.add('intro');r.introTimer=setTimeout(function(){r.classList.remove('intro')},5000)}}catch(e){}
 })(document.documentElement)</script>
 <script src="/assets/la-sound.js?v=1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -63,6 +67,10 @@ p{margin:0}
 .curtain-hint{position:absolute;left:0;right:0;bottom:14vh;text-align:center;font:500 14px/1 var(--sans);color:var(--mute);opacity:0;transition:opacity .4s}
 .curtain-hint.show{opacity:1}
 .curtain-curve{position:absolute;top:100%;left:-10%;width:120%;height:14vh;background:#030305;border-radius:0 0 50% 50%}
+/* Language switch: the curtain rises from below (curve on its top edge) and the next page opens under it. */
+.swap .curtain{display:block}.swap .curtain-label{opacity:1}
+.curtain.leaving{cursor:default}
+.curtain-curve.top{top:auto;bottom:100%;border-radius:50% 50% 0 0}
 
 /* ---------- Header ---------- */
 header{position:fixed;top:0;left:0;right:0;z-index:40;height:var(--header);display:flex;align-items:center;transition:background .4s,box-shadow .4s}
@@ -97,8 +105,8 @@ header nav a.here{color:var(--text)}
 .btn:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,255,255,.2),0 12px 40px -8px rgba(240,86,106,.55),0 8px 60px -10px rgba(139,92,246,.6)}
 .textlink{font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px;text-decoration-color:rgba(236,236,242,.35);transition:text-decoration-color .2s}
 .textlink:hover{text-decoration-color:currentColor}
-.js.intro .hero h1 .ln>span{transform:translateY(60%);filter:blur(14px);opacity:0}
-.js.intro .lede,.js.intro .cta-row{opacity:0;transform:translateY(16px)}
+.js.intro .hero h1 .ln>span,.js.swap .hero h1 .ln>span{transform:translateY(60%);filter:blur(14px);opacity:0}
+.js.intro .lede,.js.intro .cta-row,.js.swap .lede,.js.swap .cta-row{opacity:0;transform:translateY(16px)}
 .hero-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:28px 0 30px;font-size:14px;color:var(--mute)}
 .clock{font-variant-numeric:tabular-nums}
 .clock b{font-weight:500;color:var(--text)}
@@ -364,6 +372,26 @@ return{tick:tick,chime:chime,whoosh:whoosh,breath:breath,blocked:function(){retu
 })();
 </script>
 <script>
+// Arriving from the other language: the curtain is already down, showing the greeting in this page's language. Lift it.
+(function(){
+var r=document.documentElement,cur=document.querySelector('.curtain');
+if(!r.classList.contains('swap'))return;
+document.getElementById('curtainWord').textContent=/^zh/i.test(r.lang)?'你好':'Hello';
+if(!cur.animate){r.classList.remove('swap');return}
+var scr=cur.firstChild,lab=scr.firstChild,curve=scr.lastChild,done=0;
+cur.classList.add('on');
+function lift(){
+if(done)return;done=1;clearTimeout(r.swapTimer);cur.style.pointerEvents='none';
+r.classList.remove('swap');
+if(window.introSound)introSound.breath();
+lab.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
+curve.animate([{height:curve.offsetHeight+'px'},{height:'0px'}],{duration:900,delay:120,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'});
+scr.animate([{transform:'translateY(0)'},{transform:'translateY(-100%)'}],{duration:900,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'}).onfinish=function(){cur.remove()};
+setTimeout(function(){cur.remove()},1600);
+}
+cur.addEventListener('click',lift);
+Promise.race([document.fonts?document.fonts.ready:0,new Promise(function(f){setTimeout(f,400)})]).then(function(){setTimeout(lift,250)});
+})();
 (function(){
 var r=document.documentElement,cur=document.querySelector('.curtain');
 if(!r.classList.contains('intro'))return;
@@ -1034,6 +1062,39 @@ document.querySelectorAll('.pixel .btn,.pixel .window').forEach(function(a){
 });
 // Coming back with the browser's Back button can restore this page mid-flight, so clear the overlay.
 addEventListener('pageshow',function(e){if(e.persisted)document.querySelectorAll('.fly,.fly-dim').forEach(function(x){x.remove()})});
+})();
+</script>
+<script>
+// Switching language (中文 / EN): a curtain rises with the greeting in the new language, then the other page opens
+// under it at the same section and lifts its own curtain (see html.swap). Skipped with reduced motion.
+(function(){
+if(!document.body.animate)return;
+function here(){
+ if(scrollY<innerHeight*.5)return '';
+ var id='';document.querySelectorAll('main section[id]').forEach(function(s){if(s.getBoundingClientRect().top<innerHeight*.4)id=s.id});
+ return id;
+}
+document.querySelectorAll('.lang a').forEach(function(a){
+ a.addEventListener('click',function(e){
+  if(a.hasAttribute('aria-current')||e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  e.preventDefault();
+  var sec=here(),href=a.href.split('#')[0]+(sec?'#'+sec:''),zh=/^zh/i.test(a.hreflang),gone=0;
+  var cur=document.createElement('div');cur.className='curtain on leaving';cur.setAttribute('aria-hidden','true');
+  cur.innerHTML='<div class="curtain-screen"><p class="curtain-label"></p><div class="curtain-curve top"></div></div>';
+  var scr=cur.firstChild,lab=scr.firstChild,curve=scr.lastChild;lab.textContent=zh?'你好':'Hello';lab.lang=zh?'zh-CN':'en';
+  document.body.appendChild(cur);
+  var ease='cubic-bezier(.76,0,.24,1)';
+  curve.animate([{height:'14vh'},{height:'0px'}],{duration:750,easing:ease,fill:'forwards'});
+  scr.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:750,easing:ease,fill:'forwards'}).onfinish=go;
+  lab.animate([{opacity:0,transform:'translate(-50%,calc(-50% + 20px))'},{opacity:1,transform:'translate(-50%,-50%)'}],{duration:500,delay:380,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});
+  if(window.introSound)introSound.breath(true);
+  if(window.laSound)laSound.leave(.6);
+  function go(){if(gone)return;gone=1;try{sessionStorage.setItem('la-lang','1')}catch(err){}setTimeout(function(){location.href=href},250)}
+  setTimeout(go,1400);
+ });
+});
+// Coming back with the browser's Back button can restore this page with the curtain down, so clear it.
+addEventListener('pageshow',function(e){if(e.persisted)document.querySelectorAll('.curtain.leaving').forEach(function(x){x.remove()})});
 })();
 </script>
 </body>
