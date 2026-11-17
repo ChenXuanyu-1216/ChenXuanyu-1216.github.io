@@ -288,7 +288,11 @@ footer .wrap{position:relative;display:flex;justify-content:space-between;gap:24
   .portrait{position:relative;top:0;max-width:300px}
   .plate{position:relative;top:0;height:auto;grid-template-columns:minmax(0,1fr);margin-bottom:20px;transform:none}
   .plate::after{display:none}
-  .plate-shot{aspect-ratio:16/10}
+  /* Size the pictures by width only. iPhone Safari ignored a percentage max-height inside an aspect-ratio box and drew
+     the tall mini program screenshot full size, on top of its text. */
+  .plate-shot{display:block}
+  .plate-shot img{width:100%;max-height:none;margin:0 auto}
+  .plate-shot.tall img{width:46%;max-width:240px}
   .kind{margin-bottom:0}
   .row{grid-template-columns:minmax(0,1fr);gap:12px}
   .row .links{text-align:left}
@@ -455,7 +459,7 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
           <p class="desc">A tool for students that turns photos of lecture slides into editable study outlines. You can check the outline against the original photos and export it to Word for revision.</p>
           <div class="links"><a href="https://github.com/ChenXuanyu-1216/classroom-photo-outline" target="_blank" rel="noopener noreferrer">GitHub source</a></div>
         </div>
-        <div class="plate-shot tall"><img src="/assets/projects/ppt-miniprogram.png" loading="lazy" alt="The lecture outline mini program home screen, with WeChat login and lecture photo upload. The original interface is in Chinese."></div>
+        <div class="plate-shot tall"><img src="/assets/projects/ppt-miniprogram.png" width="436" height="937" loading="lazy" alt="The lecture outline mini program home screen, with WeChat login and lecture photo upload. The original interface is in Chinese."></div>
       </article>
       <article class="plate proj" style="--i:2">
         <div class="plate-text">

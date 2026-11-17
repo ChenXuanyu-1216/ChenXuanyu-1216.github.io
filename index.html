@@ -298,7 +298,11 @@ h1,h2,h3,.statement,.items span,.mail,.curtain-label{letter-spacing:0}
   .portrait{position:relative;top:0;max-width:300px}
   .plate{position:relative;top:0;height:auto;grid-template-columns:minmax(0,1fr);margin-bottom:20px;transform:none}
   .plate::after{display:none}
-  .plate-shot{aspect-ratio:16/10}
+  /* Size the pictures by width only. iPhone Safari ignored a percentage max-height inside an aspect-ratio box and drew
+     the tall mini program screenshot full size, on top of its text. */
+  .plate-shot{display:block}
+  .plate-shot img{width:100%;max-height:none;margin:0 auto}
+  .plate-shot.tall img{width:46%;max-width:240px}
   .kind{margin-bottom:0}
   .row{grid-template-columns:minmax(0,1fr);gap:12px}
   .row .links{text-align:left}
@@ -465,7 +469,7 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
           <p class="desc">给需要整理课堂笔记的同学用，把拍下来的 PPT 照片整理成可编辑的大纲。支持对照原图校对内容，再导出 Word，方便课后复习。</p>
           <div class="links"><a href="https://github.com/ChenXuanyu-1216/classroom-photo-outline" target="_blank" rel="noopener noreferrer">GitHub 源码</a></div>
         </div>
-        <div class="plate-shot tall"><img src="/assets/projects/ppt-miniprogram.png" loading="lazy" alt="课堂大纲微信小程序新版首页，包含新建整理、微信登录和添加课堂照片入口"></div>
+        <div class="plate-shot tall"><img src="/assets/projects/ppt-miniprogram.png" width="436" height="937" loading="lazy" alt="课堂大纲微信小程序新版首页，包含新建整理、微信登录和添加课堂照片入口"></div>
       </article>
       <article class="plate proj" style="--i:2">
         <div class="plate-text">
