@@ -76,6 +76,7 @@ html.fly-in .top,html.fly-in .intro,html.fly-in .room-heading,html.fly-in .world
 @media(max-width:420px){.life-nav>a{padding:0 6px}.page-footer{font-size:13px}}
 </style>
 <script id="fly-in">try{if(sessionStorage.getItem('la-fly')){sessionStorage.removeItem('la-fly');if(!matchMedia('(prefers-reduced-motion:reduce)').matches){var d=document.documentElement,off=function(){d.classList.remove('fly-in')};d.classList.add('fly-in');d.addEventListener('animationend',function f(e){if(e.animationName==='fly-up'){d.removeEventListener('animationend',f);off()}});setTimeout(off,8000)}}}catch(e){}</script>
+<script src="/assets/la-sound.js?v=1"></script>
 </head><body><main class="page">
 <header class="top"><a class="life-logo" href="#worldLayout" aria-label="LA 的像素日常">LA</a><nav class="life-nav" aria-label="小世界导航"><a href="../index.html#pixel-life">返回首页</a><div class="life-tools"><button class="sound-btn" id="soundBtn" type="button" aria-pressed="false" aria-label="界面声音" title="界面声音"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="s-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="s-off" d="m16 9 6 6m0-6-6 6"/></svg></button><div class="language-switch" role="group" aria-label="语言"><a href="index.html" lang="zh-CN" hreflang="zh-CN" aria-current="page">中文</a><a href="en/index.html" lang="en" hreflang="en">EN</a></div></div></nav></header>
 <div class="intro"><h1>住进自己的小世界。</h1><p>看见我的日常，时间与北京同步。</p></div>
@@ -784,25 +785,6 @@ window.PixelRooms = (() => {
  clock();draw();requestAnimationFrame(frame);
 })();
 </script>
-<script>(()=>{
- 'use strict';
- const button=document.getElementById('soundBtn');if(!button)return;
- const AC=window.AudioContext||window.webkitAudioContext;
- let enabled=false,context;
- try{enabled=localStorage.getItem('la-sound')==='on'}catch{}
- button.setAttribute('aria-pressed',String(enabled));
- if(!AC){button.disabled=true;return}
- async function cue(){
-  if(!enabled)return;
-  try{
-   context=context||new AC();if(context.state!=='running')await context.resume();
-   const tone=context.createOscillator(),gain=context.createGain(),now=context.currentTime;
-   tone.type='sine';tone.frequency.value=880;gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(.035,now+.008);gain.gain.exponentialRampToValueAtTime(.0001,now+.11);
-   tone.connect(gain);gain.connect(context.destination);tone.start(now);tone.stop(now+.14);tone.onended=()=>{tone.disconnect();gain.disconnect()};
-  }catch{enabled=false;button.setAttribute('aria-pressed','false')}
- }
- button.onclick=()=>{enabled=!enabled;button.setAttribute('aria-pressed',String(enabled));try{localStorage.setItem('la-sound',enabled?'on':'off')}catch{}if(enabled)cue();else if(context)context.suspend().catch(()=>{})};
- document.getElementById('pause')?.addEventListener('click',cue);
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&context)context.suspend().catch(()=>{})});
-})();
+<script id="pixel-sound">/* A soft blip on Pause / Play. The speaker button, music and settings come from /assets/la-sound.js. */
+document.getElementById('pause')?.addEventListener('click',()=>{const S=window.laSound,c=S&&S.ready(true);if(!c)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.frequency.value=880;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.11);o.connect(g);g.connect(S.master);o.start(t);o.stop(t+.14)});
 </script></body></html>

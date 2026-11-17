@@ -14,6 +14,7 @@
 // Greeting curtain: replay on entry, skip browser refresh. Fails open after 5s unless it is waiting for a click.
 try{var nav=performance.getEntriesByType('navigation')[0];if((!nav||nav.type!=='reload')&&!matchMedia('(prefers-reduced-motion:reduce)').matches){r.classList.add('intro');r.introTimer=setTimeout(function(){r.classList.remove('intro')},5000)}}catch(e){}
 })(document.documentElement)</script>
+<script src="/assets/la-sound.js?v=1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -76,7 +77,7 @@ header nav a.here{color:var(--text)}
 .tools{display:flex;align-items:center;gap:2px}
 .tool.term-btn{font-family:var(--mono);font-size:13.5px}
 .tool svg{width:18px;height:18px}
-.tool[aria-pressed="false"] .s-on,.tool[aria-pressed="true"] .s-off{display:none}
+.tool[data-on="false"] .s-on,.tool[data-on="true"] .s-off{display:none}
 .lang{display:flex;align-items:center;font-size:14px;color:var(--mute);padding-left:6px}
 .lang a{text-decoration:none;padding:8px 4px;color:var(--mute)}
 .lang a[aria-current]{color:var(--text);font-weight:500}
@@ -283,6 +284,9 @@ h1,h2,h3,.statement,.items span,.mail,.curtain-label{letter-spacing:0}
   /* Phone and tablet: the nav becomes a full-screen menu behind the header bar. */
   header nav{position:fixed;inset:0;z-index:-1;margin:0;flex-direction:column;justify-content:center;align-items:flex-start;gap:4px;padding:0 var(--gutter);background:rgba(7,7,11,.96);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);opacity:0;visibility:hidden;transition:opacity .35s var(--ease),visibility .35s}
   header.menu-open nav{opacity:1;visibility:visible}
+  /* A blurred header becomes the box that position:fixed children fill, which trapped the open menu in the 60px bar
+     once the page was scrolled. Drop the header's blur while the menu is open; the menu has its own. */
+  header.menu-open{-webkit-backdrop-filter:none;backdrop-filter:none}
   header nav a{font:500 clamp(36px,10vw,60px)/1.15 var(--display);font-stretch:112%;letter-spacing:-.03em;color:var(--text);padding:6px 0;min-height:0;border-radius:0;background:none!important;transform:translateY(12px);transition:transform .5s var(--ease),color .2s}
   header.menu-open nav a{transform:none}
   header nav a.here{color:var(--link)}
@@ -328,27 +332,9 @@ h1,h2,h3,.statement,.items span,.mail,.curtain-label{letter-spacing:0}
 // Intro sounds: synthesized with Web Audio, so no files. Browsers block audio until the visitor
 // has interacted with the site, so when it is blocked the intro waits for a click to unlock it.
 var introSound=(function(){
-var on=true,unlocked=0,ctx,master,verb,noiseBuf,VOL=.8;
-try{on=localStorage.getItem('la-sound')!=='off'}catch(e){}
-function ready(gesture){
-if(!on)return null;
-var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
-if(!ctx){
-if(!gesture&&navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy('audiocontext')==='disallowed')return null;
-try{
-ctx=new AC();
-var comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.connect(ctx.destination);
-master=ctx.createGain();master.gain.value=VOL;master.connect(comp);
-/* Reverb: a generated, slowly decaying noise impulse (a dark hall). */
-verb=ctx.createConvolver();var len=ctx.sampleRate*3.2|0,ir=ctx.createBuffer(2,len,ctx.sampleRate);
-for(var ch=0;ch<2;ch++){var d=ir.getChannelData(ch);for(var i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2)}
-verb.buffer=ir;var vg=ctx.createGain();vg.gain.value=.55;verb.connect(vg);vg.connect(master);
-noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);var nd=noiseBuf.getChannelData(0);for(var k=0;k<nd.length;k++)nd[k]=Math.random()*2-1;
-}catch(e){ctx=null;return null}
-}
-if(ctx.state!=='running'){if(gesture){ctx.resume();unlocked=1}else if(!unlocked)return null}
-return ctx;
-}
+/* The audio context, reverb and music live in /assets/la-sound.js (shared with Pixel World); these are the intro's own sounds. */
+var S=window.laSound,ctx,master,verb,noiseBuf;
+function ready(gesture){var c=S&&S.ready(gesture);if(c){ctx=c;master=S.master;verb=S.verb;noiseBuf=S.noise}return c}
 /* Route a voice to the master (optionally panned) and send some of it to the reverb. */
 function out(g,wet,pan){var dest=master;if(pan&&ctx.createStereoPanner){var p=ctx.createStereoPanner();p.pan.value=pan;p.connect(master);dest=p}g.connect(dest);if(wet){var s=ctx.createGain();s.gain.value=wet;g.connect(s);s.connect(verb)}}
 function env(g,t,a,peak,dec){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+dec)}
@@ -367,80 +353,17 @@ var c=ready();if(!c)return;var t=c.currentTime;
 [87.31,130.81,164.81,196,220].forEach(function(f){[-6,6].forEach(function(cent){tone('sawtooth',f*Math.pow(2,cent/1200),t,.35,.064,3.2,.6,0,1400)})});
 bell(880,t+.05,.03,2,.7);
 }
-/* ...and a breath of air as the curtain lifts. */
-function whoosh(gesture){var c=ready(gesture);if(!c)return;air(c.currentTime,.9,'bandpass',400,2600,.09,.35,.5);setTimeout(ambStart,1400)}
-document.addEventListener('DOMContentLoaded',function(){
-var b=document.getElementById('soundBtn');if(!b)return;
-b.setAttribute('aria-pressed',on);
-b.onclick=function(){
-on=!on;b.setAttribute('aria-pressed',on);
-try{localStorage.setItem('la-sound',on?'on':'off')}catch(e){}
-if(master)master.gain.value=on?VOL:0;
-if(on){var c=ready(true);if(c){bell(880,c.currentTime,.035,1.2,.5);ambStart()}}
-};
-});
-/* Background music, only while sound is on: "Study session", a lo-fi piece composed live in the browser.
-   Dm9 G13 Cmaj9 Am9 at 76 BPM: soft electric-piano chords, a round bassline, a swung beat, a little tape wobble
-   and vinyl crackle. The bass and drums vary at random, so it never loops exactly. */
-var amb=null;
-function ambStart(){
- if(amb||!on||!ctx)return;
- if(ctx.state!=='running'){if(unlocked)ctx.resume().then(function(){if(ctx.state==='running')ambStart()});return}
- var now=ctx.currentTime,bus=ctx.createGain();bus.gain.setValueAtTime(0,now);bus.gain.linearRampToValueAtTime(.5,now+4);bus.connect(master);
- var send=ctx.createGain();send.gain.value=.22;bus.connect(send);send.connect(verb);
- var tape=ctx.createBiquadFilter();tape.type='lowpass';tape.frequency.value=3200;tape.connect(bus);
- var wob=ctx.createOscillator(),wg=ctx.createGain();wob.frequency.value=.25;wg.gain.value=600;wob.connect(wg);wg.connect(tape.frequency);wob.start();
- var crk=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate),cd=crk.getChannelData(0);for(var k=0;k<cd.length;k++)cd[k]=Math.random()<.0008?(Math.random()*2-1)*.7:0;
- var cr=ctx.createBufferSource(),ch=ctx.createBiquadFilter(),cg=ctx.createGain();cr.buffer=crk;cr.loop=true;ch.type='highpass';ch.frequency.value=1500;cg.gain.value=.05;cr.connect(ch);ch.connect(cg);cg.connect(bus);cr.start();
- amb={bus:bus};
- function mtof(m){return 440*Math.pow(2,(m-69)/12)}
- function pick(a){return a[Math.floor(Math.random()*a.length)]}
- function v(type,f,at,a,peak,dec){var o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;o.connect(g);g.connect(tape);env(g,at,a,peak,dec);o.start(at);o.stop(at+a+dec+.05)}
- function hiss(at,dur,type,f,q,peak){var s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noiseBuf;s.playbackRate.value=.9+Math.random()*.2;fl.type=type;fl.frequency.value=f;fl.Q.value=q;s.connect(fl);fl.connect(g);g.connect(tape);env(g,at,.001,peak,dur);s.start(at,Math.random()*1.5);s.stop(at+dur+.05)}
- function keys(ms,at,vel){ms.forEach(function(m,k){var f=mtof(m+12),g=ctx.createGain(),o=ctx.createOscillator(),o2=ctx.createOscillator(),g2=ctx.createGain(),s=at+k*.012;
-  o.type='sine';o2.type='sine';o.frequency.value=f;o2.frequency.value=f*2.002;g2.gain.value=.18;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(tape);
-  env(g,s,.01,.035*vel,2.2);o.start(s);o2.start(s);o.stop(s+2.4);o2.stop(s+2.4)})}
- function bell(m,at){var f=mtof(m);[[1,1,1.6],[2,.38,.9],[3,.14,.5]].forEach(function(h){v('sine',f*h[0],at,.004,.03*h[1],h[2])})}
- function kick(at,vel){var o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(120,at);o.frequency.exponentialRampToValueAtTime(45,at+.12);o.connect(g);g.connect(tape);env(g,at,.003,.42*vel,.28);o.start(at);o.stop(at+.35)}
- var chords=[[50,53,57,60,64],[43,53,59,64,69],[48,52,55,59,62],[45,55,60,64,71]],roots=[38,31,36,33];
- var beat=60/76,step=beat/2,swing=.17*beat,i=0,t=now+.15;
- amb.timer=setInterval(function(){
-  var cur=ctx.currentTime;
-  if(t<cur-.05){var skip=Math.ceil((cur-t)/step);i+=skip;t+=skip*step}  /* after a pause, skip ahead instead of playing a burst of late notes */
-  while(t<cur+.25){
-   if(on){
-    var bar=Math.floor(i/8),pos=i%8,at=t+(pos%2?swing:0),c=bar%4;
-    if(pos===0){keys(chords[c],at,.9);v('triangle',mtof(roots[c]),at,.01,.16,1.1)}
-    if(pos===3&&Math.random()<.6)keys(chords[c].slice(2),at,.55);
-    if(pos===4)v('triangle',mtof(roots[c]+(Math.random()<.5?7:12)),at,.01,.12,.6);
-    if(pos===6&&Math.random()<.5)v('triangle',mtof(roots[c]+pick([3,5,10])),at,.01,.1,.4);
-    if(pos===0||(pos===5&&Math.random()<.7))kick(at,pos?.7:1);
-    if(pos===2||pos===6){hiss(at,.16,'bandpass',1800,.8,.1+Math.random()*.03);v('triangle',190,at,.002,.05,.09)}
-    hiss(at,.035,'highpass',7000,.7,.045*(pos%2?.5:.8)*(.7+Math.random()*.3));
-    if(pos===4&&Math.random()<.35)bell(pick([69,72,74,76,79]),at);
-   }
-   i++;t+=step;
-  }
- },50);
-}
-/* Fade the music out and pause the audio while the tab is hidden; bring it back when the visitor returns. */
-document.addEventListener('visibilitychange',function(){
- if(!amb||!ctx)return;var t=ctx.currentTime,g=amb.bus.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);
- if(document.hidden){g.linearRampToValueAtTime(0,t+.3);setTimeout(function(){if(document.hidden)ctx.suspend()},350)}
- else if(on){ctx.resume().then(function(){var n=ctx.currentTime;g.cancelScheduledValues(n);g.setValueAtTime(0,n);g.linearRampToValueAtTime(.5,n+2)})}
-});
-/* After a refresh the intro is skipped, so the music starts on the visitor's first click or key press instead. */
-function firstGesture(){removeEventListener('pointerdown',firstGesture,true);removeEventListener('keydown',firstGesture,true);if(on&&ready(true))ambStart()}
-addEventListener('pointerdown',firstGesture,true);addEventListener('keydown',firstGesture,true);
-function blocked(){return on&&!!(window.AudioContext||window.webkitAudioContext)&&!ready()}
-return{tick:tick,chime:chime,whoosh:whoosh,blocked:blocked,unlock:function(){ready(true)},ambient:ambStart};
+/* ...and a breath of air as the curtain lifts, then the background music fades in. */
+function breath(gesture){var c=ready(gesture);if(c)air(c.currentTime,.9,'bandpass',400,2600,.09,.35,.5)}
+function whoosh(gesture){breath(gesture);if(S)setTimeout(S.play,1400)}
+return{tick:tick,chime:chime,whoosh:whoosh,breath:breath,blocked:function(){return !!S&&S.blocked()},unlock:function(){ready(true)}};
 })();
 </script>
 <script>
 (function(){
 var r=document.documentElement,cur=document.querySelector('.curtain');
 if(!r.classList.contains('intro'))return;
-if(!cur.animate){r.classList.remove('intro');return}
+if(!cur.animate){r.classList.remove('intro');if(window.laSound)laSound.play();return}
 var scr=cur.firstChild,lab=scr.firstChild,curve=scr.lastChild,word=document.getElementById('curtainWord'),hint=document.getElementById('curtainHint'),done=0,holding=0,timer;
 if(matchMedia('(hover:none)').matches)hint.textContent=hint.textContent.replace('点击','轻触');
 var words=['Hello','Bonjour','Hola','Ciao','こんにちは','안녕하세요','你好，我是 LA'];
@@ -484,7 +407,7 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
     <div class="tools">
       <button class="tool menu-btn" id="menuBtn" type="button" aria-expanded="false">菜单</button>
       <button class="tool term-btn" id="termBtn" type="button" aria-haspopup="dialog" aria-expanded="false">&gt;_<span class="t-label"> 终端</span></button>
-      <button class="tool" id="soundBtn" type="button" aria-pressed="true" aria-label="开场音效" title="开场音效"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="s-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="s-off" d="m16 9 6 6m0-6-6 6"/></svg></button>
+      <button class="tool" id="soundBtn" type="button" data-on="true" aria-label="声音设置" title="声音设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path class="s-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="s-off" d="m16 9 6 6m0-6-6 6"/></svg></button>
       <div class="lang" role="group" aria-label="语言切换"><a href="/" lang="zh-CN" hreflang="zh-CN" aria-current="page">中文</a><span aria-hidden="true">/</span><a href="/en/" lang="en" hreflang="en">EN</a></div>
     </div>
   </div>
@@ -848,7 +771,7 @@ fragmentShader:[
 '}'].join('\n')});
 S.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),M));
 
-function size(){var w=innerWidth,h=innerHeight;R.setSize(w,h,false);U.uRes.value.set(w*dpr,h*dpr);U.uPortrait.value=w<h*0.9?1:0;if(reduce)draw()}
+function size(){var w=innerWidth,h=innerHeight;R.setSize(w,h,false);U.uRes.value.set(w*dpr,h*dpr);U.uPortrait.value=w<h*0.9?1:0;if(reduce&&contact)draw()}
 addEventListener('resize',size);size();
 
 var mx=9,my=9,tmx=9,tmy=9,press=0,tpress=0,lastY=scrollY,vel=0,stir=0,t=Math.random()*40,last=0,revealStart=-1,hero=document.querySelector('.hero');
@@ -1101,7 +1024,8 @@ document.querySelectorAll('.pixel .btn,.pixel .window').forEach(function(a){
    try{sessionStorage.setItem('la-fly','1')}catch(err){}
    location.href=href;
   };
-  if(window.introSound)introSound.whoosh(true);
+  if(window.introSound)introSound.breath(true);
+  if(window.laSound)laSound.leave(.9);
  });
 });
 // Coming back with the browser's Back button can restore this page mid-flight, so clear the overlay.
