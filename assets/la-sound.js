@@ -18,7 +18,8 @@ function noop(){}
 
 /* ---------- Audio graph ---------- */
 function build(){
- ctx=new AC();
+ /* 'playback' asks for a larger audio buffer: phones are less likely to drop samples (audible crackles) while the page is busy. */
+ try{ctx=new AC({latencyHint:'playback'})}catch(e){ctx=new AC()}
  var comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.connect(ctx.destination);
  master=ctx.createGain();master.gain.value=SFX;master.connect(comp);
  /* Reverb: a generated, slowly decaying noise impulse (a dark hall). */
@@ -47,7 +48,7 @@ function blip(){var c=ready(true);if(!c)return;var t=c.currentTime,o=c.createOsc
 
 /* ---------- Music: "Study session" ----------
    Dm9 G13 Cmaj9 Am9 at 76 BPM: soft electric-piano chords, a round bassline, a swung beat, a little tape wobble and
-   vinyl crackle. The bass and drums vary at random, so it never loops exactly. The clock lives in sessionStorage, so
+   soft brushed drums (no vinyl crackle: on phone speakers it read as a fault). The bass and drums vary at random, so it never loops exactly. The clock lives in sessionStorage, so
    after a refresh or a move to Pixel World the piece picks up where it would be by now instead of starting over. */
 function startMusic(){
  if(music||!on||!ctx||ctx.state!=='running')return;
@@ -59,11 +60,10 @@ function startMusic(){
 
  var duck=ctx.createGain(),bus=ctx.createGain();duck.gain.setValueAtTime(0,now);duck.gain.linearRampToValueAtTime(1,now+(carry?1.5:4));
  bus.gain.value=level();bus.connect(duck);duck.connect(master);
- var send=ctx.createGain();send.gain.value=.22;duck.connect(send);send.connect(verb);
+ /* Only the warm part goes to the reverb, so the drums' noise does not wash into a hiss. */
+ var send=ctx.createGain(),sl=ctx.createBiquadFilter();send.gain.value=.22;sl.type='lowpass';sl.frequency.value=2200;duck.connect(send);send.connect(sl);sl.connect(verb);
  var tape=ctx.createBiquadFilter();tape.type='lowpass';tape.frequency.value=3200;tape.connect(bus);
  var wob=ctx.createOscillator(),wg=ctx.createGain();wob.frequency.value=.25;wg.gain.value=600;wob.connect(wg);wg.connect(tape.frequency);wob.start();
- var crk=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate),cd=crk.getChannelData(0);for(var k=0;k<cd.length;k++)cd[k]=Math.random()<.0008?(Math.random()*2-1)*.7:0;
- var cr=ctx.createBufferSource(),ch=ctx.createBiquadFilter(),cg=ctx.createGain();cr.buffer=crk;cr.loop=true;ch.type='highpass';ch.frequency.value=1500;cg.gain.value=.05;cr.connect(ch);ch.connect(cg);cg.connect(bus);cr.start();
  music={bus:bus,duck:duck};
 
  function mtof(m){return 440*Math.pow(2,(m-69)/12)}
@@ -88,8 +88,8 @@ function startMusic(){
     if(pos===4)v('triangle',mtof(roots[c]+(Math.random()<.5?7:12)),at,.01,.12,.6);
     if(pos===6&&Math.random()<.5)v('triangle',mtof(roots[c]+pick([3,5,10])),at,.01,.1,.4);
     if(pos===0||(pos===5&&Math.random()<.7))kick(at,pos?.7:1);
-    if(pos===2||pos===6){hiss(at,.16,'bandpass',1800,.8,.1+Math.random()*.03);v('triangle',190,at,.002,.05,.09)}
-    hiss(at,.035,'highpass',7000,.7,.045*(pos%2?.5:.8)*(.7+Math.random()*.3));
+    if(pos===2||pos===6){hiss(at,.12,'bandpass',1500,1,.07+Math.random()*.02);v('triangle',190,at,.002,.05,.09)}
+    hiss(at,.025,'bandpass',6000,1.4,.022*(pos%2?.5:.8)*(.7+Math.random()*.3));
     if(pos===4&&Math.random()<.35)bell(pick([69,72,74,76,79]),at);
    }
    first=false;i++;t+=step;
