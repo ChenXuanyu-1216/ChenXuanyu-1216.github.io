@@ -479,22 +479,22 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
   </div></section>
 
   <section id="work"><div class="wrap">
-    <div class="sec-head"><h2>我在学什么</h2><p>想认真做点事情，于是开始跟着教授做研究，也试着做自己的项目。</p></div>
+    <div class="sec-head"><h2>我在学什么</h2><p>我跟着教授研究怎么提前发现步态冻结，平时也做自己的项目。最近做的 RunLedger 能在本机保存 Codex 的运行记录，方便回看执行过的命令和文件改动。</p></div>
     <div class="plates">
       <article class="plate proj" style="--i:0">
         <div class="plate-text">
-          <div class="kind meta"><span>科研项目</span><span>已完成数据预处理</span><span>Python / NumPy / pandas / SciPy</span></div>
+          <div class="kind meta"><span>科研项目</span><span>模型评估</span><span>Python / NumPy / pandas / SciPy</span></div>
           <h3>Pre-FoG</h3>
-          <p class="desc">我跟随教授研究，能否利用脚踝传感器记录的步态数据，在冻结步态发生前 1～3 秒发出预警。研究面向有冻结步态困扰的帕金森病患者，目前已完成训练数据准备，模型训练仍是后续工作。</p>
+          <p class="desc">这个项目研究能否用可穿戴传感器，在帕金森病患者出现步态冻结前几秒发出预警。我们已用多套动作记录训练和评估模型。现在的难点是既要报得够早，又要少误报。</p>
           <div class="links"><span class="private">源码暂未公开</span></div>
         </div>
         <div class="plate-shot"><img src="/assets/projects/prefog-signal.png" width="1600" height="1000" loading="lazy" alt="右踝加速度和角速度的真实记录，阴影区间标出原始冻结步态标签，不含模型预测结果"></div>
       </article>
       <article class="plate proj" style="--i:1">
         <div class="plate-text">
-          <div class="kind meta"><span>个人项目</span><span>微信小程序</span></div>
+          <div class="kind meta"><span>个人项目</span><span>开发者预览版</span></div>
           <h3>课堂 PPT 大纲生成小程序</h3>
-          <p class="desc">给需要整理课堂笔记的同学用，把拍下来的 PPT 照片整理成可编辑的大纲。支持对照原图校对内容，再导出 Word，方便课后复习。</p>
+          <p class="desc">我做了一个工具，把课堂上拍的 PPT 照片整理成复习大纲。可以对照原图校对，改好后导出 Word。网页和微信小程序的源码已经以开发者预览版发布。</p>
           <div class="links"><a href="https://github.com/ChenXuanyu-1216/classroom-photo-outline" target="_blank" rel="noopener noreferrer">GitHub 源码</a></div>
         </div>
         <div class="plate-shot tall"><img src="/assets/projects/ppt-miniprogram.png" width="436" height="937" loading="lazy" alt="课堂大纲微信小程序新版首页，包含新建整理、微信登录和添加课堂照片入口"></div>
@@ -503,7 +503,7 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
         <div class="plate-text">
           <div class="kind meta"><span>个人项目</span><span>本地原型</span></div>
           <h3>Evidence-Map</h3>
-          <p class="desc">给用 AI 写代码的初学者做的代码地图，帮助他们看懂自己的项目，也知道下一步从哪里改起。目前是本地原型，可以查看文件结构、部分代码的阅读路线和带源码行号的说明。</p>
+          <p class="desc">Evidence-Map 是我给刚开始用 AI 写代码的人做的。这个本地原型能分析本地 Git 仓库，也能导入 GitHub 上的公开仓库。你可以顺着它给的路线读代码，再点回对应的源码行核对。</p>
           <div class="links"><span class="private">源码暂未公开</span></div>
         </div>
         <div class="plate-shot"><img src="/assets/projects/evidence-map.png" width="1265" height="712" loading="lazy" alt="Evidence-Map 本地原型实际运行界面，展示项目用途、读取范围和带源码引用的阅读路线"></div>
@@ -512,9 +512,9 @@ if(introSound.blocked()){holding=1;clearTimeout(r.introTimer);hint.classList.add
 
     <div class="more">
       <h3>其他小项目</h3>
-      <article class="row proj"><div><h3>SourceTrace</h3><p class="meta">Agent Skill · Python</p></div><p class="desc">用 AI 把课件变成知识树只要几秒，但定义可能写错，关系可能是编的，重点也可能漏掉。SourceTrace 是一个 Agent Skill，对照课件原图逐个检查知识树的节点和关系，每条结论都附上页码和原文作为证据。我已在 Claude Code 和 Codex 上用多套中文课件和维基百科截图测试过。</p><div class="links"><a href="https://github.com/ChenXuanyu-1216/SourceTrace" target="_blank" rel="noopener noreferrer">GitHub 源码</a></div></article>
-      <article class="row proj"><div><h3>DailyBoss · 人生副本</h3><p class="meta">浏览器小游戏 · React / TypeScript / Three.js</p></div><p class="desc">把生活里的小崩溃做成 Boss 战：你只是想打印一张纸，打印机却成了今天的最终 Boss。首关「地狱打印机」已经可以从头玩到结局，还没有上线，也还没找人试玩。</p><div class="links"><span class="private">源码暂未公开</span></div></article>
-      <article class="row proj"><div><h3>SameWords</h3><p class="meta">AI Agent · Python / PydanticAI</p></div><p class="desc">同一句“随便你”，换个场景意思就不一样。SameWords 帮研究者设计这类语言理解实验：输入研究想法，它起草实验方案，用固定规则检查，最多修改一次。它只产出草稿，不招募被试，也不收集数据。目前完成了第一阶段的命令行版本。</p><div class="links"><span class="private">源码暂未公开</span></div></article>
+      <article class="row proj"><div><h3>SourceTrace</h3><p class="meta">Agent Skill · Python</p></div><p class="desc">SourceTrace 把 AI 生成的知识树和课件原图逐项对照，找出写错的定义、接错的关系和漏掉的知识点。报告会附上相关页码和原文。我用 Claude Code 和 Codex 都跑过测试。</p><div class="links"><a href="https://github.com/ChenXuanyu-1216/SourceTrace" target="_blank" rel="noopener noreferrer">GitHub 源码</a></div></article>
+      <article class="row proj"><div><h3>DailyBoss · 人生副本</h3><p class="meta">浏览器小游戏 · React / TypeScript / Three.js</p></div><p class="desc">你只是想打印一张纸，打印机却成了要打的 Boss。首关「地狱打印机」已能在线玩，我根据试玩反馈把它改成了实时战斗。后来又做了一个支持触屏操作的自动售货机 Boss。</p><div class="links"><a href="https://github.com/ChenXuanyu-1216/dailyboss" target="_blank" rel="noopener noreferrer">GitHub 源码</a></div></article>
+      <article class="row proj"><div><h3>SameWords</h3><p class="meta">AI Agent · Python / PydanticAI</p></div><p class="desc">同一句「随便你」，放在不同场景里可能会被听出不同的意思。SameWords 可以为这类问题起草实验方案，按规则检查，有需要时修改一轮，最后把方案和检查报告留给研究者审阅。</p><div class="links"><span class="private">命令行原型</span></div></article>
     </div>
   </div></section>
 
